@@ -1,0 +1,20 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "custom-typings"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*", "./custom-typings/*"]
+    },
+    "typeRoots": ["./node_module/@types", "custom-typings"],
+    "strict": true,
+    "importsNotUsedAsValues": "preserve",
+    "noImplicitAny": false
+  },
+
+  "references": [
+    {
+      "path": "./tsconfig.config.json"
+    }
+  ]
+}

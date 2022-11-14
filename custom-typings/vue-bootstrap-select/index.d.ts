@@ -1,0 +1,1 @@
+declare module '@alfsnd/vue-bootstrap-select';
