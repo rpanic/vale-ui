@@ -1,0 +1,87 @@
+/* @import "./tx.css"; */
+
+#app {
+  /* max-width: 1280px; */
+  /* margin: 0 auto; */
+  /* padding: 2rem; */
+
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+}
+
+@media (hover: hover) {
+  a:hover {
+    /* background-color: hsla(160, 100%, 37%, 0.2); */
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    /* display: flex; */
+    /* place-items: center; */
+  }
+
+  #app {
+    /* padding: 0 2rem; */
+  }
+}
+
+
+
+/* BOX */
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+.box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.box .rowf.header {
+  flex: 0 1 auto;
+  /* The above is shorthand for:
+  flex-grow: 0,
+  flex-shrink: 1,
+  flex-basis: auto
+  */
+}
+
+.box .rowf.content {
+  flex: 1 1 auto;
+}
+
+.box .rowf.footer {
+  flex: 0 1 50px;
+}
+
+.btn-medium{
+  padding: 0.6rem 0.83rem;
+}
+
+.badge-new {
+  border-radius: 4px;
+  margin-left: 4px;
+  font-weight: 500;
+  padding: 0 0.5rem;
+}
+
+.badge-info {
+  background-color: #0CABA8 !important;
+  color: white;
+}
+
+.badge-success {
+  color: white;
+  background-color: var(--bs-success) !important;
+}
