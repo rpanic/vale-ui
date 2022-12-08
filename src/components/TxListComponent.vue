@@ -13,7 +13,8 @@ export interface Transaction {
     address: string,
     value: number,
     block: string,
-    blocknumber: number
+    blocknumber: number,
+    timestamp: number
 }
 
 export default defineComponent({
@@ -50,6 +51,7 @@ export default defineComponent({
         walletData(next, pre){
             if(next) {
                 new GraphQlService().getTransactions(next!).then(txs => {
+                    console.log(txs)
                     this.transactions = txs
                 })
             }else{
@@ -60,6 +62,7 @@ export default defineComponent({
     mounted() {
         if(this.walletData) {
             new GraphQlService().getTransactions(this.walletData!).then(txs => {
+                console.log(txs)
                 this.transactions = txs
             })
         }
@@ -86,6 +89,7 @@ export default defineComponent({
                     <th scope="col">Time</th>
 <!--                    <th scope="col"><div>Address</div></th>-->
                 </tr>
+                <div class="mt-2"></div>
                 <template v-for="transaction in transactions" v-if="transactions.length > 0">
                     <TxRow :tx="transaction"></TxRow>
 

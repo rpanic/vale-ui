@@ -16,7 +16,8 @@ type GetBlockResponse = {
     height: number,
     block_hash: string,
     fee: string,
-    type: string
+    type: string,
+    block_timestamp: string
 }[]
 
 export interface WalletTransaction{
@@ -26,6 +27,7 @@ export interface WalletTransaction{
     block_hash: string,
     fee: string,
     type: string,
+    block_timestamp: string,
     fields: string[]
 }
 
@@ -109,7 +111,7 @@ export class GraphQlService {
                         tx.type = "DEPLOYMENT"
                         break;
                     case "1":
-                        if(tx.balancechange > 0){
+                        if(Math.abs(tx.balancechange) > 0){
                             tx.type = "TRANSFER"
                         }else{
                             tx.type = "SIGNATURE"
@@ -125,7 +127,7 @@ export class GraphQlService {
                 })
             txs.push(...eventtxs)
 
-            txs.sort((a, b) => a.height == b.height ? 0 : (a.height > b.height ? 1 : -1))
+            txs = txs.sort((a, b) => a.height == b.height ? 0 : (a.height > b.height ? 1 : -1))
 
             return txs
 
@@ -154,7 +156,8 @@ export class GraphQlService {
                     address: wallet.address,
                     value: 0, //TODO
                     block: "",
-                    blocknumber: 0
+                    blocknumber: 0,
+                    timestamp: 0
                 } as Transaction
             })
 
@@ -173,14 +176,15 @@ export class GraphQlService {
                 block: tx.block_hash,
                 txid: tx.command_hash,
                 successful: true,
-                value: tx.balancechange,
-                type: type
+                value: Math.abs(tx.balancechange),
+                type: type,
+                timestamp: Number.parseInt(tx.block_timestamp)
             } as Transaction
         })
 
         arr.push(...minedtxs)
 
-        arr.sort((a, b) => -1 * a.blocknumber == b.blocknumber ? 0 : (a.blocknumber > b.blocknumber ? 1 : -1))
+        arr = arr.sort((a, b) => -1 * (a.blocknumber == b.blocknumber ? 0 : (a.blocknumber > b.blocknumber ? 1 : -1)))
 
         return arr
     }
@@ -202,8 +206,6 @@ export class GraphQlService {
 
         let data = res.data.data
 
-        console.log(res)
-        console.log(res.data)
         let zkAppCommands = data.pooledZkappCommands as any[]
         let userCommands = data.pooledUserCommands as any[]
 

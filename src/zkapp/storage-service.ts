@@ -61,13 +61,19 @@ export class StorageService{
 
     }
 
-    getPendingTxs() : {string: string[]}{
+    getPendingTxs() : any{
 
         return JSON.parse(localStorage.getItem("pendingtxs") ?? "{}")
 
     }
 
-    savePendingTxs(o: {string: string[]}) {
+    addPendingTx(wallet: string, o: any){
+        let t = this.getPendingTxs()
+        t[wallet] = (t[wallet] ?? []).concat([o])
+        this.savePendingTxs(t)
+    }
+
+    savePendingTxs(o: any) {
 
         localStorage.setItem("pendingtxs", JSON.stringify(o))
 

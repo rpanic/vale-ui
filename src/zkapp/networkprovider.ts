@@ -5,8 +5,8 @@ export class Networkprovider {
 
     static local: boolean = false
 
-    static graphqlEndpoint = Config.GRAPHQL_URL;
-    // static graphqlEndpoint = 'https://berkeley.peak-pool.com/graphql';
+    // static graphqlEndpoint = Config.GRAPHQL_URL;
+    static graphqlEndpoint = 'https://berkeley.peak-pool.com/graphql';
 
     createNetwork() : { fundedAccount?: string, success: boolean }{
 

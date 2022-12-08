@@ -3,6 +3,7 @@ import { Config } from '@/zkapp/config';
 import { concatStringMiddle } from '@/zkapp/utils';
 import { defineComponent, PropType } from 'vue';
 import type { Transaction } from './TxListComponent.vue';
+import TimeAgo from 'javascript-time-ago'
 
 export default defineComponent({
     
@@ -32,6 +33,9 @@ export default defineComponent({
                 case "DEPOSIT":
                     text = "Deposit"
                     break;
+                case "TRANSFER":
+                    text = "Payment"
+                    break;
                 case "SIGNATURE":
                     text = "Signature"
                     break;
@@ -40,16 +44,10 @@ export default defineComponent({
             return text
         },
     },
-    // mounted() {
-
-    //     this.graphql!.getBlockHashByNumber(this.tx!.block).then(x => {
-    //         console.log(x)
-    //     })
-
-    // },
     data() {
         return {
             config: Config,
+            timeago: new TimeAgo("en-US")
         }
     },
     methods: {
@@ -62,6 +60,9 @@ export default defineComponent({
             let i = s.indexOf('.')
             let numAfterComma = 3
             return s.slice(0, i >= 0 ? i + numAfterComma + 1 : s.length)
+        },
+        formatDate(date: string) : string {
+            return this.timeago.format(new Date(date))
         }
     }
 })
@@ -80,16 +81,21 @@ export default defineComponent({
                 </div>
             </td>
             <td>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center justify-content-end" style="width: 50px">
                     {{ formatMina(tx.value) }}
                     <img src="src/assets/Mina2.png" height="20" style="border-radius: 5px;" class="ms-1"/>
                 </div>
             </td>
-            <td>
+            <td style="width: 52%;">
                 <a :href="config.EXPLORER_BASE_TX + tx.txid" target="_blank">
-                    {{ concatStringMiddle(tx.txid, 30) }}
+                    {{ concatStringMiddle(tx.txid, 70) }}
                     <font-awesome-icon icon="fa-solid fa-external-link-alt"></font-awesome-icon>
                 </a>
+            </td>
+            <td>
+                <div>
+                    {{formatDate(tx.timestamp)}}
+                </div>
             </td>
 <!--            <td>-->
 <!--                <a :href="config.EXPLORER_BASE_ADDRESS + tx.address">-->

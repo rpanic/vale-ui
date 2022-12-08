@@ -63,25 +63,35 @@ export class ViewModel {
         let impls = wallets.map((w, i) => {
 
             let signed: { signer: string, vote: boolean }[] = []
+
             let proposal: Proposal | undefined = undefined
+            let votes = [0, 0] as [number, number]
+
             events[i].forEach(e => {
                 if(e.fields[0] === "1"){
+
                     let event = VotedEvent.fromFields(e.fields.slice(1).map(x => Field(x)))
-                    if(!proposal || !proposal.hash().equals(new Proposal(event.proposal).hash())){
+
+                    votes[event.vote.toBoolean() ? 0 : 1]++
+                    if(votes[0] >= w.k || votes[1] >= w.signers.length - w.k){ //Proposal passed
                         signed = []
-                        proposal = new Proposal(event.proposal)
+                        proposal = undefined
+                        votes = [0, 0]
+                    }else{
+                        if(!proposal){
+                            proposal = new Proposal(event.proposal)
+                        }
+                        signed.push({
+                            signer: event.signer.toBase58(),
+                            vote: event.vote.toBoolean()
+                        })
                     }
-                    signed.push({
-                        signer: event.signer.toBase58(),
-                        vote: event.vote.toBoolean()
-                    })
+
                 }
             })
 
             w.alreadySigned = signed
-
-            let votes = [0, 0] as [number, number]
-            w.alreadySigned.forEach(a => votes[a.vote ? 0 : 1]++)
+            w.proposal = proposal
 
             let b = blockchainData[i] ?? {
                 balance: 0n,
@@ -256,6 +266,8 @@ export class DeployedWalletImpl extends DeployedWalletImplBase{
         }
 
         let signerMap = this.getSignerMerkleMap()
+
+        console.log(JSON.stringify(proposal))
 
         return new ProposalState({
             proposal: proposal,

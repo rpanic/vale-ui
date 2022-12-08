@@ -9,6 +9,7 @@ import type { WalletProvider } from '@/zkapp/walletprovider';
 import { SimpleObservable } from '@/zkapp/models';
 import type { TxSendParams } from './TransactionSendingComponent.vue';
 import {DeployedWalletImpl} from "@/zkapp/viewmodel";
+import {StorageService} from "@/zkapp/storage-service";
 
 export interface SignerStatus {
     address: string,
@@ -154,6 +155,8 @@ export default defineComponent({
 
                     this.walletData!.simulateApproval(s.signer, s.vote.toBoolean(), false, true)
                     this.walletData!.save()
+
+                    new StorageService().addPendingTx(this.walletData!.address, r.txhash)
 
                 })
 
