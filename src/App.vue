@@ -1,12 +1,12 @@
 <script lang="ts">
-import { isReady, Mina, setGraphqlEndpoint } from 'snarkyjs';
-import { defineComponent, inject, provide } from 'vue';
-import { RouterLink, RouterView } from 'vue-router'
+import { isReady } from 'snarkyjs';
+import { defineComponent } from 'vue';
 import { ApiService } from './zkapp/api-service';
 import { GraphQlService } from './zkapp/graphql';
 import { concatStringMiddle } from './zkapp/utils';
-import { AuroWalletProvider, type WalletProvider } from './zkapp/walletprovider';
+import { AuroWalletProvider, WalletProvider } from './zkapp/walletprovider';
 import { ZkAppService } from './zkapp/zkapp-service';
+import {ViewModel} from "@/zkapp/viewmodel";
 
 export default defineComponent({
 
@@ -35,11 +35,14 @@ export default defineComponent({
 
     let api = new ApiService();
 
+    let view = new ViewModel(service)
+
     return {
       service,
       graphql,
       wallet,
-      api
+      api,
+      view
     }
   },
 
@@ -97,7 +100,7 @@ export default defineComponent({
       <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom" style="font-weight: 600; box-shadow: rgb(40 54 61 / 18%) 0px 2px 4px 0px; z-index: 1">
         <div class="container">
           <img alt="Vue logo" class="logo me-2" src="@/assets/logo.svg" height="25"/>
-          <router-link class="navbar-brand" to="/">Vanir</router-link>
+          <router-link class="navbar-brand" to="/">Vale Multisig</router-link>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -140,11 +143,13 @@ export default defineComponent({
     <div class="rowf content bg-grayed">
       <router-view />
     </div>
-    <div class="rowf footer justify-content-center">
-      <div class="flex-grow-0" style="width: fit-content;">
-        Footer
-      </div>
-    </div>
+<!--    <div class="rowf footer justify-content-center" style="font-weight: 600; box-shadow: rgb(40 54 61 / 18%) 0px -2px 4px 0px;">-->
+<!--      <div class="d-flex justify-content-center" style="border-top: var(&#45;&#45;bs-card-border-width) solid rgb(0 14 28 / 15%)">-->
+<!--          <div class="align-self-center pt-1 mb-1">-->
+<!--              Made by <a href="https://github.com/rpanic" class="ms-2">rpanic</a>-->
+<!--          </div>-->
+<!--      </div>-->
+<!--    </div>-->
 
   </div>
 </template>

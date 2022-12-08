@@ -1,18 +1,19 @@
 <script lang="ts">
-import SignerRow, { type NewKeyPayload } from '../components/SignerRow.vue'
+import SignerRow, { NewKeyPayload } from '../components/SignerRow.vue'
 import FormRow from '../components/FormRow.vue'
 import ContinueButtonRow from '../components/ContinueButtonRow.vue'
 
 import { PrivateKey, PublicKey } from 'snarkyjs'
-import { defineComponent, inject, type PropType } from 'vue';
+import { defineComponent, inject, PropType } from 'vue';
 import { ZkAppService } from '@/zkapp/zkapp-service';
-import { StorageService, type DeployedWallet } from '@/zkapp/storage-service';
+import { StorageService, DeployedWallet } from '@/zkapp/storage-service';
 import GenericModal from '@/components/GenericModal.vue';
 import { SimpleObservable } from '@/zkapp/models';
-import TransactionSendingComponent, { type TxSendParams } from '@/components/TransactionSendingComponent.vue';
+import TransactionSendingComponent, { TxSendParams } from '@/components/TransactionSendingComponent.vue';
 import { concatStringMiddle } from '@/zkapp/utils';
 import type { WalletProvider } from '@/zkapp/walletprovider';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import {DeployedWalletData, ViewModel} from "@/zkapp/viewmodel";
 
 export interface PKList{
     list: ({ pub: PublicKey, pk: PrivateKey | undefined } | undefined)[]
@@ -32,7 +33,8 @@ export default defineComponent({
             service: new ZkAppService(),
             storageService: new StorageService(),
             txSendObservable: new SimpleObservable<TxSendParams>(),
-            walletProvider: inject<WalletProvider>("wallet")
+            walletProvider: inject<WalletProvider>("wallet"),
+            viewModel: inject<ViewModel>("view")
         }
     },
 
@@ -85,24 +87,38 @@ export default defineComponent({
             let signerKeys = this.pks.list.map(x => x!.pub)
             let k = this.select
 
-            let deployOperation = this.service.deploy(deployer, signerKeys, k, this.walletProvider!)
+            let pk = PrivateKey.random()
 
-            this.txSendObservable.next({
-                method: deployOperation
-            })
+            let wallet: DeployedWallet = {
+                contractPk: pk.toBase58(),
+                address: pk.toPublicKey().toBase58(),
+                accountNew: false,
+                deploymentTx: "",
+                k: k,
+                name: this.name,
+                signers: signerKeys.map(x => x.toBase58()),
+                alreadySigned: [],
+                pks: this.pks.list.map(x => x!.pk !== undefined ? x!.pk.toBase58() : null),
+                proposal: undefined,
+                votes: [0, 0]
+            }
 
-            deployOperation.then(result => {
+            this.viewModel!.getImplFromDeployedWallet([wallet]).then(impls => {
 
-                let wallet = {
-                    name: this.name,
-                    signers: signerKeys.map(x => x.toBase58()),
-                    k: k,
-                    address: result.address.toBase58(),
-                    pks: this.pks.list.map(x => x!.pk !== undefined ? x!.pk.toBase58() : null),
-                    deploymentTx: result.txhash
-                } as DeployedWallet
+                let deployOperation = this.service.deploy(deployer, impls[0], this.walletProvider!)
 
-                this.storageService.pushWallet(wallet)
+                this.txSendObservable.next({
+                    method: deployOperation,
+                    onClose: () => {
+                        this.$router.push("/wallets").then(() => {})
+                    }
+                })
+
+                deployOperation.then(result => {
+
+                    this.storageService.pushWallet(wallet)
+
+                })
 
             })
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 
 import { SimpleObservable } from '@/zkapp/models';
-import { defineComponent, type PropType } from 'vue'
+import { defineComponent, PropType } from 'vue'
 
 export interface ModalDisplayParams {
     show: boolean,
@@ -12,6 +12,7 @@ export default defineComponent({
 
     props: {
         observable: Object as PropType<SimpleObservable<ModalDisplayParams>>,
+        onClose: Function as PropType<() => void>,
         id: {
             type: String,
             default: "genericModal"
@@ -43,6 +44,9 @@ export default defineComponent({
                 }
             })
         }
+        document.getElementById(this.id)!.addEventListener("hide.bs.modal", (e) => {
+            this.onClose!();
+        })
     }
 
 })

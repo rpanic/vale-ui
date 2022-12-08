@@ -9,7 +9,10 @@
     "typeRoots": ["./node_module/@types", "custom-typings"],
     "strict": true,
     "importsNotUsedAsValues": "preserve",
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "preserveValueImports": false,
+    "target": "ES2022",
+    "module": "ES2020"
   },
 
   "references": [

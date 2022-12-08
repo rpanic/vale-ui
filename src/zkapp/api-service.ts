@@ -1,10 +1,11 @@
-import { PrivateKey, PublicKey, Signature, UInt64 } from "snarkyjs"
+import {Field, PrivateKey, PublicKey, Signature, UInt64} from "snarkyjs"
 import axios from 'axios'
 import type { DeployedWallet } from "./storage-service"
 
 export interface ProposalDto {
-    receiver : PublicKey
-    amount : UInt64
+    receiver : string
+    amount : string,
+    index: number
 }
 
 export interface JsonProof {
@@ -79,8 +80,8 @@ export class ApiService {
 
         let proposalDto = data.proposal
         let proposal = {
-            amount: UInt64.fromString(proposalDto["amount"]),
-            receiver: PublicKey.fromBase58(proposalDto["receiver"])
+            amount: proposalDto["amount"] + "",
+            receiver: proposalDto["receiver"]
         } as ProposalDto
 
         let signatures = [] as SignatureProof[]
@@ -113,7 +114,7 @@ export class ApiService {
     }
 
     generateApiSignature(proposal: ProposalDto, pk: PrivateKey) : Signature {
-        return Signature.create(pk, [...proposal.receiver.toFields(), ...proposal.amount.toFields()])
+        return Signature.create(pk, [...PublicKey.fromBase58(proposal.receiver).toFields(), ...UInt64.from(proposal.amount).toFields()])
     }
 
     async pushSignature(wallet: DeployedWallet, proposal: ProposalDto, proof: SignatureProof, signature: Signature) : Promise<boolean> {
@@ -141,8 +142,8 @@ export class ApiService {
 
     private getApiProposal(proposal: ProposalDto) : {amount: string, receiver: string} {
         return {
-            amount: proposal.amount.toString(),
-            receiver: proposal.receiver.toBase58()
+            amount: proposal.amount,
+            receiver: proposal.receiver
         }
     }
 

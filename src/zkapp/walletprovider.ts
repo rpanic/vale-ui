@@ -17,6 +17,7 @@ export interface WalletProvider {
     accounts() : Promise<PublicKey[]>
     sendTransaction(tx: any) : Promise<string> //Hash
     // network(): Promise<string>
+    sendPayment(amount: number, receiver: string): Promise<string>
     signMessage(msg: string) : Promise<SignedData>
     onAccountsChanged(listener: (newAccount: string) => void) : void
 
@@ -73,7 +74,25 @@ export class AuroWalletProvider implements WalletProvider {
             return hash
         } catch (error: any) {
             console.log(error.message, error.code)
-            return ""
+            throw error
+        }
+    }
+
+    async sendPayment(amount: number, receiver: string): Promise<string>{
+
+        console.log("Sending " + amount + " to " + receiver)
+        try{
+            const { hash } = await this.mina()!.sendLegacyPayment({
+                to: receiver,
+                amount,
+                memo: "Tyr deposit",
+                fee: 0.01
+            })
+            console.log(hash)
+            return hash
+        } catch (error: any) {
+            console.log(error.message, error.code)
+            throw error
         }
     }
 

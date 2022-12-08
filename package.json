@@ -21,7 +21,7 @@
     "bootstrap-select": "^1.13.18",
     "snarkyjs": "^0.7.3",
     "tictoc": "^0.1.0",
-    "vale-core": "^0.1.0",
+    "vale-core": "^0.1.7",
     "vite-plugin-cross-origin-isolation": "^0.1.6",
     "vue": "^3.2.38",
     "vue-router": "^4.1.5",

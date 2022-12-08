@@ -1,14 +1,18 @@
 <script lang="ts">
 import type { ProposalDto } from '@/zkapp/api-service';
-import { PublicKey, UInt64 } from 'snarkyjs';
-import { defineComponent, type PropType } from 'vue';
+import {Field, PublicKey, UInt64} from 'snarkyjs';
+import { defineComponent, PropType } from 'vue';
 import AssetOption from './AssetOption.vue';
+
+export interface BigIntWrapper {
+    v: bigint
+}
 
 export default defineComponent({
 
     props:{
         proposal: Object as PropType<ProposalDto>,
-        balance: UInt64
+        balance: Object as PropType<BigIntWrapper>
     },
     data() {
         return {
@@ -24,8 +28,8 @@ export default defineComponent({
         if(this.proposal !== undefined){
             this.editable = false
             this.shownProposal = {
-                receiver: this.proposal.receiver.toBase58(),
-                amount: parseFloat(this.proposal.amount.toString()) / 1e9
+                receiver: this.proposal.receiver,
+                amount: parseFloat(this.proposal.amount) / 1e9
             }
         }
 
@@ -33,21 +37,25 @@ export default defineComponent({
     methods: {
         setMaxValue() {
             if(this.editable){
-                this.shownProposal.amount = this.formatMina(this.balance)
+                this.shownProposal.amount = this.formatMina(this.balance!.v)
             }
         },
-        formatMina(uint: UInt64 | undefined): number {
+        formatMina(uint: UInt64 | bigint | undefined): number {
             if(!uint){
                 return 0.0
+            }
+            if(typeof uint === "bigint"){
+                return Number.parseInt((uint / 10000n).toString()) / 100000;
             }
             return Number.parseInt(uint.div(10000).toString()) / 100000;
         },
         submit (){
             let recPub = PublicKey.fromBase58(this.shownProposal.receiver.trim())
-            let amountUint = UInt64.fromNumber(Math.round(this.shownProposal.amount * 1e9))
+            let amountUint = Math.round(this.shownProposal.amount * 1e9)
             let dto = {
-                receiver: recPub,
-                amount: amountUint
+                receiver: recPub.toBase58(),
+                amount: amountUint + "",
+                index: 0 //TODO Add support for multiple proposals
             }
             this.$emit('proposalSet', dto)
             this.editable = false
@@ -76,7 +84,7 @@ export default defineComponent({
 
     <div class="dropdown w-50">
         <div class="disabled" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: 1px solid #ced4da; border-radius: 0.375rem;">
-            <AssetOption show-chevron title="Mina Protocol" :amount="formatMina(balance) + ' Mina'"></AssetOption>
+            <AssetOption show-chevron title="Mina Protocol" :amount="formatMina(balance.v) + ' Mina'"></AssetOption>
         </div>
         <ul class="dropdown-menu w-100">
             <li><a class="dropdown-item" href="#">
@@ -88,7 +96,7 @@ export default defineComponent({
     <label>Amount</label>
 
     <div class="input-group mb-3 w-50">
-        <input type="number" class="form-control" :placeholder="formatMina(balance).toString()" aria-describedby="button-addon2" v-model="shownProposal.amount" :disabled="!editable">
+        <input type="number" class="form-control" :placeholder="formatMina(balance.v).toString()" aria-describedby="button-addon2" v-model="shownProposal.amount" :disabled="!editable">
         <button class="btn btn-outline-secondary" type="button" id="button-addon2" @click="setMaxValue">Max</button>
     </div>
 

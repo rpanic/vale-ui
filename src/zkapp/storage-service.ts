@@ -1,12 +1,21 @@
 import { PrivateKey } from "snarkyjs"
+import {ProposalDto} from "@/zkapp/api-service";
 
 export interface DeployedWallet {
+
     name: String,
     signers: string[],
     k: number,
     address: string,
-    pks: string[],
+    pks: (string | null)[],
     deploymentTx: string
+
+    alreadySigned: { signer: string, vote: boolean}[]
+    proposal: ProposalDto | undefined
+
+    contractPk: string,
+    accountNew: boolean
+
 }
 
 export class StorageService{
@@ -31,6 +40,10 @@ export class StorageService{
         }
     }
 
+    saveWallets(wallets: DeployedWallet[]) {
+        localStorage.setItem(this.key, JSON.stringify(wallets))
+    }
+
     static tempAccount: PrivateKey | undefined = undefined 
 
     setTempDeployerAccount(key: PrivateKey) {
@@ -47,4 +60,18 @@ export class StorageService{
         return PrivateKey.fromBase58(s)
 
     }
+
+    getPendingTxs() : {string: string[]}{
+
+        return JSON.parse(localStorage.getItem("pendingtxs") ?? "{}")
+
+    }
+
+    savePendingTxs(o: {string: string[]}) {
+
+        localStorage.setItem("pendingtxs", JSON.stringify(o))
+
+    }
+
+
 }

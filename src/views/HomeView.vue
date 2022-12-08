@@ -1,9 +1,4 @@
 <script lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
-
-import { isReady, PrivateKey } from 'snarkyjs'
-import { defineComponent, type PropType } from 'vue';
-
 
 
 </script>
@@ -38,7 +33,7 @@ import { defineComponent, type PropType } from 'vue';
 
                 <div class="card-body m-3">
                   <h5 class="card-title">Create Wallet</h5>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                  <p class="card-text">Create a new multisig-wallet directly in the browser.</p>
                   <router-link to="/create" class="btn btn-success mt-3 btn-medium">Create new wallet</router-link>
                 </div>
 
@@ -46,9 +41,9 @@ import { defineComponent, type PropType } from 'vue';
               <div class="col-6">
                 
                 <div class="card-body m-3">
-                  <h5 class="card-title">Load existing Wallet</h5>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <router-link to="/wallets"  class="btn btn-success mt-3 btn-medium">Load wallet</router-link>
+                  <h5 class="card-title">View Wallets</h5>
+                  <p class="card-text">Visit your created wallets or load existing wallets into this browser.</p>
+                  <router-link to="/wallets"  class="btn btn-success mt-3 btn-medium">View wallets</router-link>
                 </div>
 
               </div>

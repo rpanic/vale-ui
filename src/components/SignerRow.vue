@@ -1,8 +1,7 @@
 <script lang="ts">
 
-import type { PKList } from '@/views/CreateView.vue';
 import { PrivateKey, PublicKey } from 'snarkyjs';
-import { defineComponent, type PropType } from 'vue'
+import { defineComponent } from 'vue'
 
 export interface NewKeyPayload{ pk: PrivateKey | undefined, pub: PublicKey, index: Number }
 
@@ -63,7 +62,7 @@ export default defineComponent({
         <div class="row">
             <div class="col-8">
                 <!-- <label for="name">Publickey</label> -->
-                <input type="text" class="form-control mt-1" id="name" :placeholder="'Wallet ' + (index! + 1)" v-model="pubKey">
+                <input type="text" class="form-control mt-1" id="name" :placeholder="'Wallet ' + (index + 1)" v-model="pubKey">
             </div>
             <div class="col-4 position-relative">
                 <button class="btn btn-success position-absolute bottom-0" type="button" href="#" @click="generateKey()">

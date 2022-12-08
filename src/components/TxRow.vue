@@ -1,9 +1,7 @@
 <script lang="ts">
 import { Config } from '@/zkapp/config';
-import { GraphQlService } from '@/zkapp/graphql';
 import { concatStringMiddle } from '@/zkapp/utils';
-import { faGrinTongueSquint } from '@fortawesome/free-solid-svg-icons';
-import { defineComponent, inject, type PropType } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import type { Transaction } from './TxListComponent.vue';
 
 export default defineComponent({
@@ -13,19 +11,29 @@ export default defineComponent({
     },
     computed: {
         color() {
-            return "success"
+            let color = "success"
+
+            switch(this.tx!.type){
+                case "SIGNATURE":
+                    color = "warning";
+                    break;
+                case "TRANSFER":
+                    color = "success";
+                    break;
+            }
+            return color
         },
         text() : string {
-            let text = "None"
+            let text = "Other"
             switch(this.tx!.type){
                 case "DEPLOYMENT": 
                     text = "Creation";
                     break;
-                case "TRANSFER":
-                    text = "Transfer"
+                case "DEPOSIT":
+                    text = "Deposit"
                     break;
                 case "SIGNATURE":
-                    text = "Signatures"
+                    text = "Signature"
                     break;
             }
 
@@ -46,6 +54,9 @@ export default defineComponent({
     },
     methods: {
         concatStringMiddle,
+        formatMina(n: number) : string{
+            return this.formatNumber(n / 1e9)
+        },
         formatNumber(n: number) : string {
             let s = n.toString()
             let i = s.indexOf('.')
@@ -58,34 +69,34 @@ export default defineComponent({
 </script>
 
 <template>
-        <tr>
+        <tr style="line-height: 50px">
             <td>
-                <a v-if="tx!.block.length > 0" :href="config.EXPLORER_BASE_BLOCK + tx!.block">{{ tx!.blocknumber }}</a>
-                <div v-if="tx!.block.length === 0" class="badge text-warning border-warning" style="border: 1px solid;">Pending</div>
+                <a v-if="tx.block.length > 0" :href="config.EXPLORER_BASE_BLOCK + tx.block" target="_blank">{{ tx.blocknumber }}</a>
+                <div v-if="tx.block.length === 0" class="badge text-warning border-warning" style="border: 1px solid;">Pending</div>
             </td>
             <td>
-                <div class="badge " :class="'text-bg-' + color">
+                <div class="btn btn-nohover " :class="'btn-outline-' + color" style="padding: 0.3rem 0.6rem;">
                     {{ text }}
                 </div>
             </td>
             <td>
-                <a :href="config.EXPLORER_BASE_TX + tx!.txid">
-                    {{ concatStringMiddle(tx!.txid, 20) }}
-                    <font-awesome-icon icon="fa-solid fa-external-link-alt"></font-awesome-icon>
-                </a>
-            </td>
-            <td>
                 <div class="d-flex align-items-center">
-                    {{ formatNumber(tx!.value) }}
-                    <img src="src/assets/Mina2.png" height="24" style="border-radius: 5px;" class="ms-1"/>
+                    {{ formatMina(tx.value) }}
+                    <img src="src/assets/Mina2.png" height="20" style="border-radius: 5px;" class="ms-1"/>
                 </div>
             </td>
             <td>
-                <a :href="config.EXPLORER_BASE_ADDRESS + tx!.address">
-                    {{ concatStringMiddle(tx!.address, 26) }}
+                <a :href="config.EXPLORER_BASE_TX + tx.txid" target="_blank">
+                    {{ concatStringMiddle(tx.txid, 30) }}
                     <font-awesome-icon icon="fa-solid fa-external-link-alt"></font-awesome-icon>
                 </a>
             </td>
+<!--            <td>-->
+<!--                <a :href="config.EXPLORER_BASE_ADDRESS + tx.address">-->
+<!--                    {{ concatStringMiddle(tx.address, 26) }}-->
+<!--                    <font-awesome-icon icon="fa-solid fa-external-link-alt"></font-awesome-icon>-->
+<!--                </a>-->
+<!--            </td>-->
         </tr>
 
 </template>
@@ -94,6 +105,10 @@ export default defineComponent({
 
 tr:hover {
     background: rgba(0, 0, 0, 0.05)
+}
+
+.table > :not(caption) > * > * {
+    padding: 0;
 }
 
 </style>

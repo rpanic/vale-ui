@@ -22,6 +22,7 @@ export default defineComponent({
     mounted() {
         if (this.changes !== undefined) {
             this.changes!.subscribe(x => {
+                console.log("3", x.status)
                 this.status = x.status
                 this.link = x.link
             });

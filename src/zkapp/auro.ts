@@ -17,11 +17,19 @@ interface SendTransactionArgs {
       fee?: number,
       memo?: string
     };
-  }
+}
+
+interface SendPaymentArgs {
+    to: string,
+    amount: number,
+    fee?: number,
+    memo?:string
+}
 
 export interface AuroMina {
     requestAccounts(): Promise<string[]>
     sendTransaction(args: SendTransactionArgs): Promise<{ hash: string }>;
+    sendLegacyPayment(args: SendPaymentArgs) : Promise<{hash: string}>;
     signMessage(args: SignMessageArgs): Promise<SignedData>;
     on(a: 'accountsChanged', handler: (accounts: string[]) => void): void;
 }
