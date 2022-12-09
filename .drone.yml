@@ -20,4 +20,4 @@ volumes:
       path: /var/lib/cache/vale
   - name: vale-build
     host:
-      path: /root/build/vale
+      path: /var/www/html/docker-builds/vale
