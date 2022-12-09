@@ -25,7 +25,7 @@ export default defineComponent({
 
     <div class="d-flex mx-3 my-2 align-items-center" style="justify-content: space-between">
         <div class="d-flex align-items-center">
-            <img src="src/assets/Mina2.png" height="32" style="border-radius: 5px;"/>
+            <img src="../assets/Mina2.png" height="32" style="border-radius: 5px;"/>
             
             <div class="text-normal ms-3">
                 <div style="font-weight: 500;">{{title}}</div>

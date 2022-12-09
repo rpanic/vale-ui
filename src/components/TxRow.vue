@@ -83,7 +83,7 @@ export default defineComponent({
             <td>
                 <div class="d-flex align-items-center justify-content-end" style="width: 50px">
                     {{ formatMina(tx.value) }}
-                    <img src="src/assets/Mina2.png" height="20" style="border-radius: 5px;" class="ms-1"/>
+                    <img src="../assets/Mina2.png" height="20" style="border-radius: 5px;" class="ms-1"/>
                 </div>
             </td>
             <td style="width: 52%;">

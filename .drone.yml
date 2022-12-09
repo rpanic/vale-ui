@@ -1,0 +1,23 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: build
+    image: node
+    volumes:
+      - name: cache
+        path: /drone/src/node_modules
+      - name: vale-build
+        path: /drone/src/dist
+    commands:
+      - npm install
+      - npm run build-only
+
+volumes:
+  - name: cache
+    host:
+      path: /var/lib/cache/vale
+  - name: vale-build
+    host:
+      path: /root/build/vale

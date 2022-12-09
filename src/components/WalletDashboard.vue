@@ -106,7 +106,7 @@ export default defineComponent({
                     <div class="d-flex assetRow align-items-strech" style="justify-content: space-between;" v-if="wallet !== undefined" >
 
                         <div class="d-flex align-items-center">
-                            <img src="src/assets/Mina2.png" height="20" style="border-radius: 5px;"/>
+                            <img src="../assets/Mina2.png" height="20" style="border-radius: 5px;"/>
                             <div class="h6 d-inline m-0 ms-2">{{ formatMina(wallet.balance) }} MINA </div>
                             <div class="h6 d-inline m-0 ms-2">{{ roundNumber(formatMina(wallet.balance) * price, 2) }}$ </div>
                         </div>
@@ -148,7 +148,7 @@ export default defineComponent({
 
                         <div style="width: fit-content;">
                             <h6>{{wallet.votes[0]}} from {{wallet.k}} signed</h6>
-                            <h5 class="d-flex align-items-center mb-0">{{ formatMina(wallet.proposal.amount) }} <img src="src/assets/Mina2.png" height="22" style="border-radius: 5px;" class="ms-1"/></h5>
+                            <h5 class="d-flex align-items-center mb-0">{{ formatMina(wallet.proposal.amount) }} <img src="../assets/Mina2.png" height="22" style="border-radius: 5px;" class="ms-1"/></h5>
                         </div>
                         <div style="width: fit-content;">
                             <button @click="$emit('newTransactionClicked')" to="/create" class="btn btn-success">
