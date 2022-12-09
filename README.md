@@ -1,5 +1,7 @@
 # multisig-ui2
 
+[![Build Status](https://drone.rpanic.com/api/badges/rpanic/vale-ui/status.svg)](https://drone.rpanic.com/rpanic/vale-ui)
+
 ## Limitations
 
 AuroWallet is only used for sending transactions, not for deploying the contract and signing
