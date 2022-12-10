@@ -11,7 +11,7 @@ import './assets/main.css'
 import './assets/tx.css'
 import TimeAgo from "javascript-time-ago";
 
-// import * as bootstrap from 'bootstrap'
+import * as bootstrap from 'bootstrap'
 
 /* import font awesome icon component */
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

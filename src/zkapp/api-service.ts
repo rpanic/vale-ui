@@ -1,4 +1,4 @@
-import {Field, PrivateKey, PublicKey, Signature, UInt64} from "snarkyjs"
+import {PrivateKey, PublicKey, Signature, UInt64} from "snarkyjs"
 import axios from 'axios'
 import type { DeployedWallet } from "./storage-service"
 

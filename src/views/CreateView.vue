@@ -14,6 +14,7 @@ import { concatStringMiddle } from '@/zkapp/utils';
 import type { WalletProvider } from '@/zkapp/walletprovider';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {DeployedWalletData, ViewModel} from "@/zkapp/viewmodel";
+import {Collapse} from "bootstrap";
 
 export interface PKList{
     list: ({ pub: PublicKey, pk: PrivateKey | undefined } | undefined)[]
@@ -40,9 +41,12 @@ export default defineComponent({
 
     mounted() {
         setTimeout(() => {
-            eval("new bootstrap.Collapse('#collapse1', {toggle: false}).show()")
-            eval("new bootstrap.Collapse('#collapse2', {toggle: false}).hide()")
-            eval("new bootstrap.Collapse('#collapse3', {toggle: false}).hide()")
+            new Collapse('#collapse1', {toggle: false}).show()
+            new Collapse('#collapse2', {toggle: false}).hide()
+            new Collapse('#collapse3', {toggle: false}).hide()
+            // eval("new bootstrap.Collapse('#collapse1', {toggle: false}).show()")
+            // eval("new bootstrap.Collapse('#collapse2', {toggle: false}).hide()")
+            // eval("new bootstrap.Collapse('#collapse3', {toggle: false}).hide()")
         }, 300)
         this.service.init();
 
@@ -71,11 +75,11 @@ export default defineComponent({
                 if(i !== nextItem){
                     // eval("$('#collapse" + i + "').collapse('hide')");
                     // document.querySelector()
-                    eval("new bootstrap.Collapse('#collapse" + i + "', {toggle: false}).hide()")
+                    new Collapse("#collapse" + i, {toggle: false}).hide()
                     // ((window as any).$('#collapse1') as any).collapse('hide')
                 }
             }
-            eval("new bootstrap.Collapse('#collapse" + nextItem + "', {toggle: false}).show()")
+            new Collapse("#collapse" + nextItem, {toggle: false}).show()
         },
         cancelClicked(){
             this.$router.push("/")
@@ -99,8 +103,7 @@ export default defineComponent({
                 signers: signerKeys.map(x => x.toBase58()),
                 alreadySigned: [],
                 pks: this.pks.list.map(x => x!.pk !== undefined ? x!.pk.toBase58() : null),
-                proposal: undefined,
-                votes: [0, 0]
+                proposal: undefined
             }
 
             this.viewModel!.getImplFromDeployedWallet([wallet]).then(impls => {
@@ -115,6 +118,8 @@ export default defineComponent({
                 })
 
                 deployOperation.then(result => {
+
+                    wallet.deploymentTx = result.txhash
 
                     this.storageService.pushWallet(wallet)
 
