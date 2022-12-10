@@ -7,6 +7,7 @@ import { concatStringMiddle } from './zkapp/utils';
 import { AuroWalletProvider, WalletProvider } from './zkapp/walletprovider';
 import { ZkAppService } from './zkapp/zkapp-service';
 import {ViewModel} from "@/zkapp/viewmodel";
+import {Toast} from "bootstrap";
 
 export default defineComponent({
 
@@ -18,7 +19,8 @@ export default defineComponent({
       snarkyjsReady: false,
       wallet: undefined as WalletProvider | undefined,
       address: undefined as string | undefined,
-      concatStringMiddle: concatStringMiddle
+      concatStringMiddle: concatStringMiddle,
+      txPendingDropdownFlipped: false
     }
   },
 
@@ -57,12 +59,24 @@ export default defineComponent({
           this.address = account1.toBase58()
         }
       })
+    },
+    openToast(){
+        const toast = new Toast('#liveToast', {
+          autohide: false
+        })
+        toast.show()
+    },
+    flipTransactionPendingDropdown(){
+      this.txPendingDropdownFlipped = !this.txPendingDropdownFlipped
     }
   },
 
   mounted() {
 
     isReady.then(() => {
+
+      this.openToast()
+
 
       console.log("SnarkyJS loaded and connected!")
       this.snarkyjsReady = true
@@ -151,6 +165,36 @@ export default defineComponent({
 <!--      </div>-->
 <!--    </div>-->
 
+      <div class="toast-container position-fixed bottom-0 end-0 p-3">
+          <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="toast-body m-1">
+
+                <div class="d-flex py-1" style="line-height: 120%">
+                  <div class="spinner-border spinner-border-sm text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <div class="ms-2">1 transaction pending</div>
+                  <a class="ms-auto text-dark pe-1" @click="flipTransactionPendingDropdown"
+                     data-bs-toggle="collapse" href="#tx-collapse" role="button" aria-expanded="false" aria-controls="tx-collapse">
+                    <font-awesome-icon icon="fa-solid fa-chevron-down" :class="{'flipped': txPendingDropdownFlipped, 'unflipped': !txPendingDropdownFlipped}"></font-awesome-icon>
+                  </a>
+                </div>
+
+                <div class="collapse" id="tx-collapse">
+                  <hr class="mb-2 mt-3 pb-1">
+                  <!-- Row -->
+                  <div class="d-flex justify-content-between">
+                    <div>Deposit to
+                    <a href="abc.html" class="text-success"><font-awesome-icon icon="fa-solid fa-wallet" class="text-success"></font-awesome-icon>
+                      My Wallet
+                    </a></div>
+                    <a href="asd" class="text-success" target="_blank">Explorer <font-awesome-icon icon="fa-solid fa-up-right-from-square"></font-awesome-icon></a>
+                  </div>
+                </div>
+              </div>
+          </div>
+      </div>
+
   </div>
 </template>
 
@@ -172,6 +216,37 @@ export default defineComponent({
 }
 @-webkit-keyframes spin {
   to { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes flipped {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(180deg); }
+}
+@-webkit-keyframes flipped {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(180deg); }
+}
+
+@keyframes flipped-out {
+  to { transform: rotate(0deg); }
+  from { transform: rotate(180deg); }
+}
+@-webkit-keyframes flipped-out {
+  to { -webkit-transform: rotate(0deg); }
+  from { -webkit-transform: rotate(180deg); }
+}
+
+
+.unflipped {
+  animation: flipped-out 0.4s ease;
+  transform: rotate(0deg);
+  -webkit-transform: rotate(0deg);
+}
+
+.flipped {
+  animation: flipped 0.4s ease;
+  transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
 }
 
 .btn-auro {
@@ -202,7 +277,7 @@ export default defineComponent({
 
 .btn-auro:hover {
   color: #fff;
-  animation: auro-trans 0.2s ease-in-out;
+  animation: auro-trans 0.8s ease-in-out;
   background-position-x: -40px;
 }
 
