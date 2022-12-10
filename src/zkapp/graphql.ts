@@ -39,7 +39,7 @@ export class GraphQlService {
 
     url = Config.GRAPHQL_URL
 
-    resturl = "http://eu2.rpanic.com:3055/rpc"
+    resturl = "https://berkeley.eu2.rpanic.com/rpc"
 
     // async getBlockHashByNumber(n: number) : Promise<string> {
 
