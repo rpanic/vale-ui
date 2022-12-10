@@ -16,11 +16,12 @@ export default defineComponent({
 
             switch(this.tx!.type){
                 case "SIGNATURE":
-                    color = "warning";
+                    color = "primary";
                     break;
                 case "TRANSFER":
-                    color = "success";
+                    color = "danger";
                     break;
+
             }
             return color
         },
@@ -73,7 +74,7 @@ export default defineComponent({
         <tr style="line-height: 50px">
             <td>
                 <a v-if="tx.block.length > 0" :href="config.EXPLORER_BASE_BLOCK + tx.block" target="_blank">{{ tx.blocknumber }}</a>
-                <div v-if="tx.block.length === 0" class="badge text-warning border-warning" style="border: 1px solid;">Pending</div>
+                <div v-if="tx.block.length === 0" class="text-warning me-2" style="">Pending</div>
             </td>
             <td>
                 <div class="btn btn-nohover " :class="'btn-outline-' + color" style="padding: 0.3rem 0.6rem;">

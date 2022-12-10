@@ -106,18 +106,7 @@ export class GraphQlService {
             });
             eventtxs.forEach(tx => {
 
-                switch (tx.fields[0]){
-                    case "0": //init
-                        tx.type = "DEPLOYMENT"
-                        break;
-                    case "1":
-                        if(Math.abs(tx.balancechange) > 0){
-                            tx.type = "TRANSFER"
-                        }else{
-                            tx.type = "SIGNATURE"
-                        }
-                        break;
-                }
+                tx.type = this.getTransactionTypeByEventData(tx.fields, tx.balancechange)
 
             })
 
@@ -137,6 +126,20 @@ export class GraphQlService {
         }
     }
 
+    getTransactionTypeByEventData(data: string[], balancechange: number) : string{
+        switch (data[0]){
+            case "0": //init
+                return "DEPLOYMENT"
+            case "1":
+                if(Math.abs(balancechange) > 0){
+                    return "TRANSFER"
+                }else{
+                    return "SIGNATURE"
+                }
+        }
+        return "Other"
+    }
+
     async getTransactions(wallet: DeployedWalletImpl) : Promise<Transaction[]>{
 
         let arr = [] as Transaction[]
@@ -144,24 +147,29 @@ export class GraphQlService {
         //Pending txs
         let storage = new StorageService()
         let pendings = storage.getPendingTxs()
+        console.log(pendings)
         if(pendings[wallet.address] !== undefined && pendings[wallet.address].length > 0) {
             let pendingsP = await Promise.all(
-                pendings[wallet.address].map(hash => this.getPendingTransaction(hash)) as Promise<boolean>[]
+                pendings[wallet.address].map(hash => this.getPendingTransaction(hash)) as Promise<{ pending: boolean, type: string }>[]
             )
-            pendingsP.filter(x => x === true).map((b, i) => {
+            console.log(pendingsP)
+
+            let ptxs = pendingsP.filter(x => x.pending === true).map((b, i) => {
                 return {
-                    type: "PENDING",
+                    type: b.type,
                     txid: pendings[wallet.address][i],
                     successful: false,
                     address: wallet.address,
                     value: 0, //TODO
                     block: "",
                     blocknumber: 0,
-                    timestamp: 0
+                    timestamp: new Date().getTime()
                 } as Transaction
             })
 
-            pendings[wallet.address] = pendingsP.filter(x => x === true)
+            arr.push(...ptxs)
+
+            pendings[wallet.address] = pendings[wallet.address].filter((x, i) => pendingsP[i].pending === true)
             storage.savePendingTxs(pendings)
         }
 
@@ -184,16 +192,35 @@ export class GraphQlService {
 
         arr.push(...minedtxs)
 
-        arr = arr.sort((a, b) => -1 * (a.blocknumber == b.blocknumber ? 0 : (a.blocknumber > b.blocknumber ? 1 : -1)))
+        arr = arr.sort((a, b) => {
+            if(a.type === "PENDING"){
+                return -1
+            }else if(b.type === "PENDING"){
+                return 1
+            }
+            let c = (a.blocknumber == b.blocknumber ? 0 : (a.blocknumber > b.blocknumber ? 1 : -1))
+            return -1 * c
+        })
 
         return arr
     }
 
-    async getPendingTransaction(hash: string) : Promise<boolean> { //whether the transaction is found in the mempool
+    async getPendingTransaction(hash: string) : Promise<{ pending: boolean, type: string }> { //whether the transaction is found in the mempool
 
         let query = `query MyQuery {
             pooledZkappCommands(hashes: "$hash") {
               hash
+              zkappCommand {
+                  accountUpdates {
+                    body {
+                      events
+                      balanceChange {
+                        magnitude
+                        sgn
+                      }
+                    }
+                  }
+                }
             }
             pooledUserCommands(hashes: "$hash") {
               hash
@@ -209,7 +236,28 @@ export class GraphQlService {
         let zkAppCommands = data.pooledZkappCommands as any[]
         let userCommands = data.pooledUserCommands as any[]
 
-        return zkAppCommands.length > 0 || userCommands.length > 0
+        let ret = {
+            pending: false,
+            type: ""
+        }
+
+        if(zkAppCommands.length > 0){
+
+            let aus = zkAppCommands[0].zkappCommand.accountUpdates
+            let balancechange = aus.map(x => Number.parseInt(x.body.balanceChange.magnitude) * (x.body.balanceChange.sgn === "Positive" ? 1 : -1)).reduce((a, b) => a + b)
+            let event = aus.map(x => x.body.events as any[]).filter(x => x.length > 0)[0]
+            let type = this.getTransactionTypeByEventData(
+                event, balancechange
+            )
+            ret.pending = true
+            ret.type = type
+
+        }else if(userCommands.length > 0){
+            ret.pending = true
+            ret.type = "DEPOSIT"
+        }
+
+        return ret
 
     }
 

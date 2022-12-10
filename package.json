@@ -22,7 +22,7 @@
     "javascript-time-ago": "^2.5.9",
     "snarkyjs": "^0.7.3",
     "tictoc": "^0.1.0",
-    "vale-core": "^0.1.7",
+    "vale-core": "^0.1.8",
     "vite-plugin-cross-origin-isolation": "^0.1.6",
     "vue": "^3.2.38",
     "vue-router": "^4.1.5",

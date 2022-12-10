@@ -73,12 +73,12 @@ export class ViewModel {
                     let event = VotedEvent.fromFields(e.fields.slice(1).map(x => Field(x)))
 
                     votes[event.vote.toBoolean() ? 0 : 1]++
-                    if(votes[0] >= w.k || votes[1] >= w.signers.length - w.k){ //Proposal passed
+                    if(votes[0] >= w.k || votes[1] > w.signers.length - w.k){ //Proposal passed
                         signed = []
                         proposal = undefined
                         votes = [0, 0]
                     }else{
-                        if(!proposal){
+                        if(proposal === undefined){
                             proposal = new Proposal(event.proposal)
                         }
                         signed.push({
@@ -91,7 +91,16 @@ export class ViewModel {
             })
 
             w.alreadySigned = signed
-            w.proposal = proposal
+            let pexists = proposal !== undefined
+            if(pexists){
+                w.proposal = {
+                    amount: proposal!.amount.toString(),
+                    receiver: proposal!.receiver.toBase58(),
+                    index: 0
+                }
+            }else{
+                w.proposal = undefined
+            }
 
             let b = blockchainData[i] ?? {
                 balance: 0n,

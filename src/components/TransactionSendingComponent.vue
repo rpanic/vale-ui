@@ -6,6 +6,7 @@ import { defineComponent, PropType } from 'vue'
 import GenericModal, { ModalDisplayParams } from './GenericModal.vue';
 import Completable, { CompletableChanges } from './Completable.vue';
 import type { TxSendResults } from '@/zkapp/zkapp-service';
+import {StorageService} from "@/zkapp/storage-service";
 
 export interface TxSendParams{
     method: Promise<TxSendResults>,
@@ -37,6 +38,12 @@ export default defineComponent({
 
                     if(res.txhash){
                         this.changes.next({ status: "success", link: Config.EXPLORER_BASE_TX + res.txhash })
+
+                        if(res.wallet){
+                            console.log("Adding pending tx " + res.txhash)
+                            new StorageService().addPendingTx(res.wallet!, res.txhash)
+                        }
+
                     }
                     this.closeable = true
                     this.onCloseListener = x.onClose ?? (() => {})

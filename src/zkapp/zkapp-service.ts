@@ -22,6 +22,7 @@ import {Networkprovider} from "@/zkapp/networkprovider";
 
 export interface TxSendResults {
     txhash: string
+    wallet?: string
 }
 
 export interface DeployResults extends TxSendResults {
@@ -207,7 +208,8 @@ export class ZkAppService {
 
         let hash = await walletProvider.sendTransaction(tx.toJSON())
         return {
-            txhash: hash
+            txhash: hash,
+            wallet: wallet.address
         }
 
     }
@@ -345,12 +347,13 @@ export class ZkAppService {
 
             //Check deployment tx
             let pending = await new GraphQlService().getPendingTransaction(deploymentTx)
+            console.log("Pending: ", pending)
             return {
                 address: address,
                 network: "Berkeley",
                 balance: 0n,
                 live: false,
-                deploymentPending: pending
+                deploymentPending: pending.pending
             }
         }
 

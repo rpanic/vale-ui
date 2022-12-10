@@ -146,7 +146,7 @@ export default defineComponent({
 
         <div class="col-3 ps-0">
 
-            <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white overflow-auto sticky-top" style="height: 90vh; z-index: 0; box-shadow: rgb(40 54 61 / 18%) 0px 2px 4px 0px;">
+            <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white overflow-auto sticky-top" style="height: 93.5vh; z-index: 0; box-shadow: rgb(40 54 61 / 18%) 0px 2px 4px 0px;">
 
                 <a class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
                     <!-- <svg class="bi pe-none me-2" width="30" height="24"><use xlink:href="#bootstrap"></use></svg> -->

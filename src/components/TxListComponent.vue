@@ -49,13 +49,12 @@ export default defineComponent({
     },
     watch: {
         walletData(next, pre){
+            this.transactions = []
             if(next) {
                 new GraphQlService().getTransactions(next!).then(txs => {
                     console.log(txs)
                     this.transactions = txs
                 })
-            }else{
-                this.transactions = []
             }
         }
     },

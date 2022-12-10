@@ -30,6 +30,8 @@ export default defineComponent({
 },
     methods: {
         formatMina(uint: bigint | string): number {
+            console.log(typeof uint)
+            console.log(uint)
             if(typeof uint === "string"){
                 uint = Field(uint).toBigInt()
             }
@@ -42,7 +44,7 @@ export default defineComponent({
                 this.txSendObservable!.next({
                     method: new Promise<TxSendResults>((res, rej) => {
                         promise
-                            .then(txhash => res({ txhash }))
+                            .then(txhash => res({ txhash, wallet: this.wallet!.address }))
                             .catch(err => {console.log("1", err); rej(err)})
                     })
                 })
@@ -147,7 +149,7 @@ export default defineComponent({
                     <div v-if="wallet !== undefined && wallet.proposal !== undefined" class="border-card py-3 px-3 d-flex flex-row align-items-center" style="justify-content: space-between;">
 
                         <div style="width: fit-content;">
-                            <h6>{{wallet.votes[0]}} from {{wallet.k}} signed</h6>
+                            <h6>{{wallet.votes[0]}} from {{wallet.k}} approved</h6>
                             <h5 class="d-flex align-items-center mb-0">{{ formatMina(wallet.proposal.amount) }} <img src="../assets/Mina2.png" height="22" style="border-radius: 5px;" class="ms-1"/></h5>
                         </div>
                         <div style="width: fit-content;">

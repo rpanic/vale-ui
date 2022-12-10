@@ -156,8 +156,6 @@ export default defineComponent({
                     this.walletData!.simulateApproval(s.signer, s.vote.toBoolean(), false, true)
                     this.walletData!.save()
 
-                    new StorageService().addPendingTx(this.walletData!.address, r.txhash)
-
                 })
 
             })
