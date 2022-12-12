@@ -1,6 +1,23 @@
-# multisig-ui2
+# Vale Multisig UI
 
 [![Build Status](https://drone.rpanic.com/api/badges/rpanic/vale-ui/status.svg)](https://drone.rpanic.com/rpanic/vale-ui)
+
+## Features
+
+- Dynamic selection of signers, and the threshold for proposal approval
+- Sending signatures and deposits with Aurowallet
+- Creation of proposals and subsequent signing of approval / disapproval
+- Automatic and instant payout of approved proposals
+- Device-independent recreation of proposals and signer state using contract-events
+- Live feed of pending transactions
+- Decoding of transaction-purpose from events
+
+## Core concepts
+
+### Proposal
+
+A proposal is an initiative of one of the signers of a wallet to send a specific amount of funds to an address.
+This proposal can then be approved or declined by all of the signers 
 
 ## Limitations
 
