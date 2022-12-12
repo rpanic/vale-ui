@@ -6,16 +6,17 @@ import {ProposalDto} from "@/zkapp/api-service";
 import {Proposal, ProposalState, SignerState, VotedEvent} from "vale-core/build/src/multisigv2";
 import * as blockies from "blockies-ts";
 import {BigIntWrapper} from "@/components/ProposalForm.vue";
-import {GraphQlService, WalletTransaction} from "@/zkapp/graphql";
+import {GraphQlService} from "@/zkapp/graphql";
 
 export class ViewModel {
 
     storageService = new StorageService()
     service: ZkAppService
-    graphql = new GraphQlService()
+    graphql: GraphQlService
 
-    constructor(service: ZkAppService) {
+    constructor(service: ZkAppService, graphql: GraphQlService) {
         this.service = service;
+        this.graphql = graphql
     }
 
     wallets: DeployedWalletImpl[] = []
@@ -196,7 +197,8 @@ export class DeployedWalletImplBase implements DeployedWalletData{
     deploymentTx: string;
     k: number;
     live: boolean;
-    name: String;
+    name: string;
+    proofBySignature: boolean;
     network: string;
     pks: (string | null)[];
     proposal: ProposalDto | undefined;
@@ -221,6 +223,7 @@ export class DeployedWalletImplBase implements DeployedWalletData{
         this.votes = data.votes;
         this.contractPk = data.contractPk
         this.accountNew = data.accountNew
+        this.proofBySignature = data.proofBySignature;
     }
 
     blockie() : string{
@@ -338,7 +341,8 @@ export class DeployedWalletImpl extends DeployedWalletImplBase{
             alreadySigned: this.saving_alreadySigned,
             signers: this.signers,
             accountNew: this.saving_accountNew,
-            contractPk: this.contractPk
+            contractPk: this.contractPk,
+            proofBySignature: this.proofBySignature
         }
     }
 

@@ -8,7 +8,10 @@ export interface NewKeyPayload{ pk: PrivateKey | undefined, pub: PublicKey, inde
 export default defineComponent({
 
     props: {
-        index: Number,
+        index: {
+          type: Number,
+          required: true
+        },
         pk: PrivateKey
     },
     data() {

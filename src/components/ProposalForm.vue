@@ -11,8 +11,13 @@ export interface BigIntWrapper {
 export default defineComponent({
 
     props:{
-        proposal: Object as PropType<ProposalDto>,
-        balance: Object as PropType<BigIntWrapper>
+        proposal: {
+          type: Object as PropType<ProposalDto>
+        },
+        balance: {
+          type: Object as PropType<BigIntWrapper>,
+          default: {v: 0n}
+        }
     },
     data() {
         return {

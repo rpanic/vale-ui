@@ -8,6 +8,7 @@ import { AuroWalletProvider, WalletProvider } from './zkapp/walletprovider';
 import { ZkAppService } from './zkapp/zkapp-service';
 import {ViewModel} from "@/zkapp/viewmodel";
 import {Toast} from "bootstrap";
+import {PendingTxService} from "@/zkapp/pendingtx";
 
 export default defineComponent({
 
@@ -20,33 +21,39 @@ export default defineComponent({
       wallet: undefined as WalletProvider | undefined,
       address: undefined as string | undefined,
       concatStringMiddle: concatStringMiddle,
-      txPendingDropdownFlipped: false
     }
   },
 
-  provide(){
-    //Dependencies
-    let service = new ZkAppService();
-    service.init()
+    provide(){
 
-    let graphql = new GraphQlService()
+        //Dependencies
 
-    console.log("1")
-    let wallet = new AuroWalletProvider() as WalletProvider;
-    this.wallet = wallet
+        let pendingtxservice = new PendingTxService()
 
-    let api = new ApiService();
+        let graphql = new GraphQlService(pendingtxservice)
 
-    let view = new ViewModel(service)
+        let service = new ZkAppService(graphql);
+        service.init()
 
-    return {
-      service,
-      graphql,
-      wallet,
-      api,
-      view
-    }
-  },
+        pendingtxservice.init(graphql).then(() => {})
+
+        console.log("1")
+        let wallet = new AuroWalletProvider() as WalletProvider;
+        this.wallet = wallet
+
+        let api = new ApiService();
+
+        let view = new ViewModel(service, graphql)
+
+        return {
+              service,
+              graphql,
+              wallet,
+              api,
+              view,
+              pendingtxservice
+        }
+    },
 
   methods:{
     connectAuro(){
@@ -59,23 +66,12 @@ export default defineComponent({
           this.address = account1.toBase58()
         }
       })
-    },
-    openToast(){
-        const toast = new Toast('#liveToast', {
-          autohide: false
-        })
-        toast.show()
-    },
-    flipTransactionPendingDropdown(){
-      this.txPendingDropdownFlipped = !this.txPendingDropdownFlipped
     }
   },
 
   mounted() {
 
     isReady.then(() => {
-
-      this.openToast()
 
 
       console.log("SnarkyJS loaded and connected!")
@@ -113,7 +109,7 @@ export default defineComponent({
 
       <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom" style="font-weight: 600; box-shadow: rgb(40 54 61 / 18%) 0px 2px 4px 0px; z-index: 1">
         <div class="container">
-          <img alt="Vue logo" class="logo me-2" src="@/assets/logo.svg" height="25"/>
+<!--          <img alt="Vue logo" class="logo me-2" src="@/assets/logo.svg" height="25"/>-->
           <router-link class="navbar-brand" to="/">Vale Multisig</router-link>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -131,7 +127,7 @@ export default defineComponent({
                   <button class="btn btn-auro">Connect AuroWallet</button>
                 </div>
                 <div class="me-3" v-if="snarkyjsReady && address">
-                  <font-awesome-icon icon="fa-solid fa-check" class="align-self-center text-success" /> 
+                  <font-awesome-icon icon="fa-solid fa-check" class="align-self-center text-success" />
                   Connected
                 </div>
 
@@ -145,7 +141,7 @@ export default defineComponent({
 
                 <span class="badge-new badge-info ms-3 my-auto">Berkeley Testnet</span>
                 <!-- <font-awesome-icon icon="fa-solid fa-chevron-down" class="align-self-center ms-2" />  -->
-                
+
             </ul>
 
           </div>
@@ -153,7 +149,7 @@ export default defineComponent({
         </div>
       </nav>
     </div>
-  
+
     <div class="rowf content bg-grayed">
       <router-view />
     </div>
@@ -165,41 +161,12 @@ export default defineComponent({
 <!--      </div>-->
 <!--    </div>-->
 
-      <div class="toast-container position-fixed bottom-0 end-0 p-3">
-          <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-              <div class="toast-body m-1">
-
-                <div class="d-flex py-1" style="line-height: 120%">
-                  <div class="spinner-border spinner-border-sm text-success" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                  <div class="ms-2">1 transaction pending</div>
-                  <a class="ms-auto text-dark pe-1" @click="flipTransactionPendingDropdown"
-                     data-bs-toggle="collapse" href="#tx-collapse" role="button" aria-expanded="false" aria-controls="tx-collapse">
-                    <font-awesome-icon icon="fa-solid fa-chevron-down" :class="{'flipped': txPendingDropdownFlipped, 'unflipped': !txPendingDropdownFlipped}"></font-awesome-icon>
-                  </a>
-                </div>
-
-                <div class="collapse" id="tx-collapse">
-                  <hr class="mb-2 mt-3 pb-1">
-                  <!-- Row -->
-                  <div class="d-flex justify-content-between">
-                    <div>Deposit to
-                    <a href="abc.html" class="text-success"><font-awesome-icon icon="fa-solid fa-wallet" class="text-success"></font-awesome-icon>
-                      My Wallet
-                    </a></div>
-                    <a href="asd" class="text-success" target="_blank">Explorer <font-awesome-icon icon="fa-solid fa-up-right-from-square"></font-awesome-icon></a>
-                  </div>
-                </div>
-              </div>
-          </div>
-      </div>
 
   </div>
 </template>
 
 <style>
-  
+
 .loading {
   display: inline-block;
   width: 20px;

@@ -8,13 +8,16 @@ import TimeAgo from 'javascript-time-ago'
 export default defineComponent({
     
     props: {
-        tx: Object as PropType<Transaction>
+        tx: {
+          type: Object as PropType<Transaction>,
+          required: true
+        }
     },
     computed: {
         color() {
             let color = "success"
 
-            switch(this.tx!.type){
+            switch(this.tx.type){
                 case "SIGNATURE":
                     color = "primary";
                     break;
@@ -27,7 +30,7 @@ export default defineComponent({
         },
         text() : string {
             let text = "Other"
-            switch(this.tx!.type){
+            switch(this.tx.type){
                 case "DEPLOYMENT": 
                     text = "Creation";
                     break;
@@ -62,7 +65,7 @@ export default defineComponent({
             let numAfterComma = 3
             return s.slice(0, i >= 0 ? i + numAfterComma + 1 : s.length)
         },
-        formatDate(date: string) : string {
+        formatDate(date: number) : string {
             return this.timeago.format(new Date(date))
         }
     }

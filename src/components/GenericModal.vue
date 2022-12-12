@@ -2,6 +2,7 @@
 
 import { SimpleObservable } from '@/zkapp/models';
 import { defineComponent, PropType } from 'vue'
+import {Modal} from "bootstrap";
 
 export interface ModalDisplayParams {
     show: boolean,
@@ -12,7 +13,7 @@ export default defineComponent({
 
     props: {
         observable: Object as PropType<SimpleObservable<ModalDisplayParams>>,
-        onClose: Function as PropType<() => void>,
+        onClose: Function,
         id: {
             type: String,
             default: "genericModal"
@@ -34,13 +35,13 @@ export default defineComponent({
                 this.closeable = x.closeable
                 if(x.show === true){
                     let options = {
-                        backdrop: x.closeable ? true : 'static',
+                        backdrop: x.closeable ? true : 'static' as 'static' | boolean,
                         keyboard: x.closeable
                     }   
-                    eval("new bootstrap.Modal('#" + this.id + "', " + JSON.stringify(options) + ").show()")
+                    new Modal("#" + this.id, options).show()
                 }else{
                     console.log("asd")
-                    eval("bootstrap.Modal.getOrCreateInstance('#" + this.id + "').hide()")
+                    Modal.getOrCreateInstance("#" + this.id).hide()
                 }
             })
         }

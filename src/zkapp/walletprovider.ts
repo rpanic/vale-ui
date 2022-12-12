@@ -67,7 +67,7 @@ export class AuroWalletProvider implements WalletProvider {
                 transaction: txBody,
                 feePayer: {
                   fee: 0.01,
-                  memo: "Tyr"
+                  memo: "Vale Multisig mina.rpanic.com"
                 }
             })
             console.log(hash)
@@ -85,7 +85,7 @@ export class AuroWalletProvider implements WalletProvider {
             const { hash } = await this.mina()!.sendLegacyPayment({
                 to: receiver,
                 amount,
-                memo: "Tyr deposit",
+                memo: "Vale Deposit -> mina.rpanic.com",
                 fee: 0.01
             })
             console.log(hash)

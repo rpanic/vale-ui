@@ -31,7 +31,8 @@ export default defineComponent({
             pks: { list: [undefined] } as PKList,
             select: 1,
             name: "",
-            service: new ZkAppService(),
+            authorizationSignature: true,
+            service: inject<ZkAppService>("service")!,
             storageService: new StorageService(),
             txSendObservable: new SimpleObservable<TxSendParams>(),
             walletProvider: inject<WalletProvider>("wallet"),
@@ -47,11 +48,7 @@ export default defineComponent({
             // eval("new bootstrap.Collapse('#collapse1', {toggle: false}).show()")
             // eval("new bootstrap.Collapse('#collapse2', {toggle: false}).hide()")
             // eval("new bootstrap.Collapse('#collapse3', {toggle: false}).hide()")
-        }, 300)
-        this.service.init();
-
-        (window as any).PrivateKey = PrivateKey;
-        (window as any).PublicKey = PublicKey
+        }, 300);
     },
 
     methods: {
@@ -70,7 +67,7 @@ export default defineComponent({
         concatStringMiddle,
         nextClicked(index: number, back: boolean = false) {
             let nextItem = index + (back ? -1 : 1)
-            console.log("emit2", nextItem)
+
             for(let i = 1 ; i <= 3 ; i++){
                 if(i !== nextItem){
                     // eval("$('#collapse" + i + "').collapse('hide')");
@@ -103,7 +100,8 @@ export default defineComponent({
                 signers: signerKeys.map(x => x.toBase58()),
                 alreadySigned: [],
                 pks: this.pks.list.map(x => x!.pk !== undefined ? x!.pk.toBase58() : null),
-                proposal: undefined
+                proposal: undefined,
+                proofBySignature: this.authorizationSignature
             }
 
             this.viewModel!.getImplFromDeployedWallet([wallet]).then(impls => {
@@ -161,7 +159,18 @@ export default defineComponent({
                         <form class="form">
                             <label for="name">Enter a new name</label>
                             <input type="text" class="form-control mb-2 mt-1 mr-sm-2" style="width: 50%" id="name" placeholder="Wallet 1" v-model="name">
+
+                            <hr class="mt-4">
+
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="authorizationCheck" checked="authorizationSignature" v-model="authorizationSignature" style="margin-top: 14px">
+                                <label class="form-check-label" for="authorizationCheck">
+                                    Send transactions without proofs
+                                    <small class="text-muted font-size-small d-block"> (calculates signatures faster)</small>
+                                </label>
+                            </div>
                         </form>
+
                     </div>
 
                     <ContinueButtonRow @next-clicked="nextClicked(1)" @back-clicked="cancelClicked" back-text="Cancel"/>

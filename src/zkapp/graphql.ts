@@ -2,7 +2,8 @@ import axios, {AxiosResponse} from "axios";
 import { Config } from "./config";
 import {DeployedWalletImpl} from "@/zkapp/viewmodel";
 import {Transaction} from "@/components/TxListComponent.vue";
-import {StorageService} from "@/zkapp/storage-service";
+import {inject} from "vue";
+import {PendingTxService} from "@/zkapp/pendingtx";
 
 type GetEventResponse = {
     txid: string,
@@ -35,29 +36,17 @@ type GetCanonicalBlockResponse = {
     state_hash: string
 }[]
 
-export class GraphQlService {
+export class GraphQlService{
 
     url = Config.GRAPHQL_URL
 
     resturl = "https://berkeley-api.eu2.rpanic.com/rpc"
 
-    // async getBlockHashByNumber(n: number) : Promise<string> {
+    pendingTxs = inject<PendingTxService>("pendingtxservice")!
 
-    //     const operationsDoc = `
-    //         query MyQuery {
-    //             block(height: ` + n + `) {
-    //             stateHash
-    //             }
-    //         }`;
-
-    //     let res = await axios.post(this.url, {
-    //         query: operationsDoc
-    //     })
-    //     console.log(res.data)
-
-    //     return ""
-
-    // }
+    constructor(pendingTxs: PendingTxService) {
+        this.pendingTxs = pendingTxs
+    }
 
     async getMinedTransactions(address: string) : Promise<WalletTransaction[]>{
 
@@ -145,33 +134,33 @@ export class GraphQlService {
         let arr = [] as Transaction[]
 
         //Pending txs
-        let storage = new StorageService()
-        let pendings = storage.getPendingTxs()
-        console.log(pendings)
-        if(pendings[wallet.address] !== undefined && pendings[wallet.address].length > 0) {
-            let pendingsP = await Promise.all(
-                pendings[wallet.address].map(hash => this.getPendingTransaction(hash)) as Promise<{ pending: boolean, type: string }>[]
-            )
-            console.log(pendingsP)
-
-            let ptxs = pendingsP.filter(x => x.pending === true).map((b, i) => {
-                return {
-                    type: b.type,
-                    txid: pendings[wallet.address][i],
-                    successful: false,
-                    address: wallet.address,
-                    value: 0, //TODO
-                    block: "",
-                    blocknumber: 0,
-                    timestamp: new Date().getTime()
-                } as Transaction
-            })
-
-            arr.push(...ptxs)
-
-            pendings[wallet.address] = pendings[wallet.address].filter((x, i) => pendingsP[i].pending === true)
-            storage.savePendingTxs(pendings)
-        }
+        // let pendings = this.pendingTxs.getPendingTxs()
+        // console.log(pendings)
+        // if(pendings[wallet.address] !== undefined && pendings[wallet.address].length > 0) {
+        //     let pendingsP = await Promise.all(
+        //         pendings[wallet.address].map(hash => this.getPendingTransaction(hash)) as Promise<{ pending: boolean, type: string }>[]
+        //     )
+        //     console.log(pendingsP)
+        //
+        //     let ptxs = pendingsP.filter(x => x.pending === true).map((b, i) => {
+        //         return {
+        //             type: b.type,
+        //             txid: pendings[wallet.address][i],
+        //             successful: false,
+        //             address: wallet.address,
+        //             value: 0, //TODO
+        //             block: "",
+        //             blocknumber: 0,
+        //             timestamp: new Date().getTime()
+        //         } as Transaction
+        //     })
+        //
+        //     arr.push(...ptxs)
+        //
+        //     pendings[wallet.address]
+        //         .filter((x, i) => pendingsP[i].pending !== true)
+        //         .forEach(tx => this.pendingTxs.resolveTx(wallet.address, tx))
+        // }
 
 
         let minedtxs = (await this.getMinedTransactions(wallet.address)).map(tx => {
@@ -193,10 +182,11 @@ export class GraphQlService {
         arr.push(...minedtxs)
 
         arr = arr.sort((a, b) => {
-            if(a.type === "PENDING"){
-                return -1
-            }else if(b.type === "PENDING"){
+            console.log(a.txid)
+            if(a.blocknumber === 0){
                 return 1
+            }else if(a.blocknumber === 0){
+                return -1
             }
             let c = (a.blocknumber == b.blocknumber ? 0 : (a.blocknumber > b.blocknumber ? 1 : -1))
             return -1 * c

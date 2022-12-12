@@ -1,17 +1,17 @@
 <script lang="ts">
 
-import { StorageService, DeployedWallet } from '@/zkapp/storage-service';
-import { defineComponent, inject } from 'vue';
-import * as blockies from 'blockies-ts';
-import { ZkAppService, WalletAccountData } from '@/zkapp/zkapp-service';
-import { UInt64 } from 'snarkyjs';
+import {StorageService} from '@/zkapp/storage-service';
+import {defineComponent, inject} from 'vue';
+import {WalletAccountData, ZkAppService} from '@/zkapp/zkapp-service';
+import {UInt64} from 'snarkyjs';
 import SendingForm from '@/components/SendingForm.vue';
-import GenericModal, { ModalDisplayParams } from '@/components/GenericModal.vue';
-import TransactionSendingComponent, { TxSendParams } from '@/components/TransactionSendingComponent.vue';
+import GenericModal, {ModalDisplayParams} from '@/components/GenericModal.vue';
+import TransactionSendingComponent, {TxSendParams} from '@/components/TransactionSendingComponent.vue';
 import WalletDashboard from '@/components/WalletDashboard.vue';
-import { SimpleObservable } from '@/zkapp/models';
-import { ApiService } from '@/zkapp/api-service';
+import {SimpleObservable} from '@/zkapp/models';
+import {ApiService} from '@/zkapp/api-service';
 import {DeployedWalletImpl, ViewModel} from "@/zkapp/viewmodel";
+import PendingTxToast from "@/views/PendingTxToast.vue";
 
 export interface UIWalletAccountData extends WalletAccountData {
     name: string
@@ -135,7 +135,7 @@ export default defineComponent({
         }
 
     },
-    components: { SendingForm, WalletDashboard, GenericModal, TransactionSendingComponent }
+    components: {PendingTxToast, SendingForm, WalletDashboard, GenericModal, TransactionSendingComponent }
 });
 
 </script>
@@ -158,11 +158,11 @@ export default defineComponent({
                     <a href="#" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true" :class="{'bg-active': index === selectedWallet}" @click="walletSelected(index)">
                         <div class="d-flex w-100 align-items-center justify-content-between">
                             <div class="mb-2 d-flex">
-                                <div class="strong fw-bolder"> 
-                                    {{ wallet.name }} 
+                                <div class="strong fw-bolder">
+                                    {{ wallet.name }}
                                 </div>
                                 <div v-if="walletData.length >= index && walletData[index] !== undefined" class="d-flex">
-                                    <div class="dot align-self-center ms-2" 
+                                    <div class="dot align-self-center ms-2"
                                         :class="{'bg-success': walletData[index].live, 'bg-warning': walletData[index].deploymentPending, 'bg-danger': !walletData[index].live && !walletData[index].deploymentPending}">
                                     </div>
                                     <small class="d-flex ms-1 align-self-center ">{{ walletData[index].live ? 'Live' : (walletData[index].deploymentPending ? 'Pending' : 'Error') }}</small>
@@ -171,7 +171,7 @@ export default defineComponent({
                                     <small class="ms-1 align-self-center ">Loading...</small>
                                 </div>
                             </div>
-                            
+
 
                             <small>{{wallet.k}} of {{wallet.signers.length}}</small>
                         </div>
@@ -191,7 +191,7 @@ export default defineComponent({
                         <strong class="mb-1">No wallets imported</strong>
                     </a>
                 </div>
-                
+
                 <!-- Load Wallet -->
 <!--                TODO -->
 <!--                <div class="d-flex align-self-center mt-auto mb-3">-->
@@ -209,7 +209,7 @@ export default defineComponent({
                 </div>
 
             </div>
-            
+
         </div>
         <div class="col-9" >
             <div class="container mt-5" v-if="view === 0">
@@ -240,7 +240,7 @@ export default defineComponent({
         </div>
     </div>
 
-    
+
     <GenericModal id="walletModal" :observable="modalObs" large>
 
         <template v-if="modalView === 0">
@@ -284,8 +284,10 @@ export default defineComponent({
     </GenericModal>
 
     <TransactionSendingComponent v-if="txSendObservable" :observable="txSendObservable">
-        
+
     </TransactionSendingComponent>
+
+    <PendingTxToast></PendingTxToast>
 
 </template>
 
@@ -299,7 +301,7 @@ export default defineComponent({
 }
 
 .bg-grayed{
-    background-color: var(--bs-gray-100); 
+    background-color: var(--bs-gray-100);
     /* z-index: -4 */
 }
 

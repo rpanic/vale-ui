@@ -1,14 +1,16 @@
 import { PrivateKey } from "snarkyjs"
 import {ProposalDto} from "@/zkapp/api-service";
+import {TxDict} from "@/zkapp/pendingtx";
 
 export interface DeployedWallet {
 
-    name: String,
+    name: string,
     signers: string[],
     k: number,
     address: string,
     pks: (string | null)[],
-    deploymentTx: string
+    deploymentTx: string,
+    proofBySignature: boolean
 
     alreadySigned: { signer: string, vote: boolean}[]
     proposal: ProposalDto | undefined
@@ -61,19 +63,13 @@ export class StorageService{
 
     }
 
-    getPendingTxs() : any{
+    getPendingTxs() : TxDict{
 
         return JSON.parse(localStorage.getItem("pendingtxs") ?? "{}")
 
     }
 
-    addPendingTx(wallet: string, o: any){
-        let t = this.getPendingTxs()
-        t[wallet] = (t[wallet] ?? []).concat([o])
-        this.savePendingTxs(t)
-    }
-
-    savePendingTxs(o: any) {
+    savePendingTxs(o: TxDict) {
 
         localStorage.setItem("pendingtxs", JSON.stringify(o))
 

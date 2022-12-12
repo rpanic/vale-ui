@@ -2,11 +2,12 @@
 
 import { SimpleObservable } from '@/zkapp/models';
 import { Config } from '@/zkapp/config';
-import { defineComponent, PropType } from 'vue'
+import {defineComponent, inject, PropType} from 'vue'
 import GenericModal, { ModalDisplayParams } from './GenericModal.vue';
 import Completable, { CompletableChanges } from './Completable.vue';
 import type { TxSendResults } from '@/zkapp/zkapp-service';
 import {StorageService} from "@/zkapp/storage-service";
+import {PendingTxService} from "@/zkapp/pendingtx";
 
 export interface TxSendParams{
     method: Promise<TxSendResults>,
@@ -15,7 +16,7 @@ export interface TxSendParams{
 
 export default defineComponent({
     props: {
-        observable: Object as PropType<SimpleObservable<TxSendParams>>
+        observable: Object as PropType<SimpleObservable<TxSendParams>>,
     },
     emits: {
     },
@@ -25,7 +26,9 @@ export default defineComponent({
             modalObs: new SimpleObservable<ModalDisplayParams>(),
             closeable: false,
             onCloseReceiver: this.onClose,
-            onCloseListener: () => {}
+            onCloseListener: () => {},
+
+            pendingtxs: inject<PendingTxService>("pendingtxservice")!
         }
     },
     mounted() {
@@ -41,7 +44,7 @@ export default defineComponent({
 
                         if(res.wallet){
                             console.log("Adding pending tx " + res.txhash)
-                            new StorageService().addPendingTx(res.wallet!, res.txhash)
+                            this.pendingtxs.addPendingTx(res.wallet!, res.txhash)
                         }
 
                     }
