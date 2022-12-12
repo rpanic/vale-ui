@@ -72,17 +72,19 @@ export default defineComponent({
 
                 let signaturePromise: Promise<Signature> | undefined = undefined
 
+                console.log("1")
                 if(pkStr !== null && pkStr !== undefined && pkStr.length > 0){
 
                     let pk = PrivateKey.fromBase58(pkStr)
 
                     console.log(this.signaturesQueue);
-                    console.log()
 
-                    let signature = Signature.create(pk, this.walletData!.getSignatureData(Bool(vote)))
+                    console.log("1.5")
+                    let signature = this.service!.signData(pk, this.walletData!.getSignatureData(Bool(vote)))
+                    console.log("2")
 
                     signaturePromise = new Promise((res) => {
-                        res(signature)
+                        signature.then(sig => res(sig))
                     })
 
                 }else{
@@ -108,6 +110,7 @@ export default defineComponent({
 
                 signaturePromise?.then(signature => {
 
+                    console.log("3")
                     this.service!.signProposal(pubKey, signature, vote, this.walletData!).then(signature => {
 
                         this.signaturesQueue.push(signature)

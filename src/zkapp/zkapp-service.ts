@@ -13,12 +13,13 @@ import { ApiService, JsonProof } from "./api-service";
 import { GraphQlService } from "./graphql";
 import { StorageService } from "./storage-service";
 import type { WalletProvider } from "./walletprovider";
-import "./worker"
 import {tic, toc} from 'tictoc'
 import { ProposalState} from "vale-core/build/src/multisigv2";
 import {DeployedWalletImpl} from "@/zkapp/viewmodel";
-import {ProveMethod} from "vale-core/build/src/utils";
 import {Networkprovider} from "@/zkapp/networkprovider";
+import {WorkerClient} from "@/zkapp/workerclient";
+import {RollupArgs, ValeDeployArgs} from "@/zkapp/worker2";
+import {Config} from "@/zkapp/config";
 
 export interface TxSendResults {
     txhash: string
@@ -65,7 +66,6 @@ export interface RollupWorkerParams {
 export class ZkAppService {
 
     connected: Boolean = false
-    // MultiSigZkApp: any
 
     isReady2: Promise<any>
     res: (value: any) => void = () => {}
@@ -74,19 +74,22 @@ export class ZkAppService {
 
     programCompiled = false
 
-    constructor(){
+    graphql: GraphQlService;
+
+    constructor(graphql: GraphQlService){
         this.initWindow()
         
         this.isReady2 = new Promise((res) => {
             this.res = res
         })
+        this.graphql = graphql
     }
 
     initWindow(){
         (window as any).service = this;
         (window as any).PrivateKey = PrivateKey;
         (window as any).PublicKey = PublicKey;
-        (window as any).graphql = new GraphQlService();
+        (window as any).graphql = this.graphql;
         (window as any).Field = Field;
         (window as any).CircuitString = CircuitString;
         (window as any).Signature = Signature;
@@ -109,63 +112,30 @@ export class ZkAppService {
             this.connected = true
             this.res({})
 
+            this.workerInstance.init().then(x => {
+                console.log("Worker ready")
+            })
+
         })
 
     }
 
-    async test(){
-        // let signers = [PrivateKey.random().toPublicKey(), PrivateKey.random().toPublicKey()]
-        // let proposal = new Proposal(signers[0], Field.fromNumber(1000))
-        // console.log(proposal.hash().toString())
-        // let signerList = SignerList.constructFromSigners(signers)
-        // console.log(signerList.hash().toString())
-
-        // console.log(new URL(".").toString())
-
-        let worker = new Worker(new URL("./worker.ts", import.meta.url), {type: "module"})
-        worker.addEventListener("message", e => {
-            console.log("msg", e.data)
-        })
-        worker.addEventListener("error", e => {
-            console.log(e)
-        })
-        worker.postMessage("init")
-
+    async signData(key: PrivateKey, data: Field[]){
+        let d = await this.workerInstance.sign({pk: key.toBase58(), data: data.map(x => x.toString())})
+        return Signature.fromJSON(d)
     }
 
-    workerInstance: Worker = new Worker(new URL("./worker.ts", import.meta.url), {type: "module"})
-
-    worker(request: any & {operation: string}, resOp: string) : Promise<any>{
-        return new Promise<any>(res => {
-            
-            this.workerInstance.postMessage(JSON.stringify(request))
-            let listener = (e: MessageEvent<any>) => {
-                
-                if(e.data.startsWith("{")){
-                    let o = JSON.parse(e.data)
-                    if(Object.keys(o).includes("operation")){
-                        if(o.operation === resOp){
-                            res(o.data)
-                            this.workerInstance.removeEventListener("message", listener)
-                            // this.workerInstance.terminate()
-                        }
-                    }
-                }
-
-            }
-            this.workerInstance.addEventListener("message", listener)
-        })
-    }
+    workerInstance = new WorkerClient()
 
     async signProposal(key: PublicKey, signature: Signature, vote: boolean, wallet: DeployedWalletImpl) : Promise<QueuedOperation>{
 
         (window as any).state = {key, vote, wallet}
 
         if(!this.programCompiled){
-            await this.worker({operation: "compile", params: {}}, "compile_ret")
+            // Not needed anymore since we don´t use recursion anymore
+            // await this.worker({operation: "compile", params: {}}, "compile_ret")
             this.programCompiled = true
         }
-
         console.log(key.toBase58(), vote)
 
         let proposalState = wallet.getProposalState()!
@@ -192,125 +162,40 @@ export class ZkAppService {
 
     async rollup(op: QueuedOperation, wallet: DeployedWalletImpl, walletProvider: WalletProvider) : Promise<TxSendResults> {
 
-        // console.log(Mina.hasAccount(wallet.proposal!.receiver))
-        // await Mina.getAccount(wallet.proposal!.receiver)
-        await fetchAccount({ publicKey: wallet.proposal!.receiver })
-
-        let tx = await Mina.transaction(() => {
-
-            let c = new MultiSigContract(PublicKey.fromBase58(wallet.address))
-
-            c.doApproveSignature(op.signer, op.signature, op.vote, op.proposalState, op.proposalWitness, op.signerWitness)
-
-            c.requireSignature()
+        await this.workerInstance.initProveMethod({
+            proofWithSignature: wallet.proofBySignature,
+            zkAppPk: wallet.contractPk
         })
-        tx.sign([PrivateKey.fromBase58(wallet.contractPk)])
 
-        let hash = await walletProvider.sendTransaction(tx.toJSON())
+        let serializeWitness = (w: MerkleMapWitness) => {
+            return {
+                isLefts: w.isLefts.map(x => x.toBoolean()),
+                siblings: w.siblings.map(x => x.toString())
+            }
+        }
+
+        let rollupArgs: RollupArgs = {
+            signer: op.signer.toBase58(),
+            proposalState: ProposalState.toJSON(op.proposalState),
+            vote: op.vote.toBoolean(),
+            signerWitness: serializeWitness(op.signerWitness),
+            proposalWitness: serializeWitness(op.proposalWitness),
+            signature: Signature.toJSON(op.signature),
+            walletAddress: wallet.address,
+            receiver: wallet.proposal!.receiver,
+        }
+
+        console.log(rollupArgs)
+
+        let json = await this.workerInstance.rollup(rollupArgs)
+        let hash = await walletProvider.sendTransaction(json)
+
         return {
             txhash: hash,
             wallet: wallet.address
         }
 
     }
-
-    // async rollup(proof: MultiSigProof, wallet: DeployedWalletState, account: PrivateKey, walletProvider: WalletProvider) : Promise<TxSendResults>{
-    //
-    //     let votes = [0, 0]
-    //     wallet.state?.signatures.map(x => x.vote).forEach(a => votes[a ? 0 : 1]++)
-    //     let alreadySigned = wallet.state!.signatures.map(x => x.address.toBase58())
-    //
-    //     let params = {
-    //         alreadySigned,
-    //         feePayer: account.toBase58(),
-    //         proof: proof.toJSON(),
-    //         proposal: {
-    //             receiver: wallet.state!.proposal.receiver.toBase58(),
-    //             amount: wallet.state!.proposal.amount.toString()
-    //         },
-    //         signers: wallet.wallet.signers,
-    //         walletAddress: wallet.wallet.address,
-    //         votes: {
-    //             before: [0, 0],
-    //             after: votes
-    //         }
-    //     } as RollupWorkerParams
-    //
-    //     console.log("Compiling Smartcontract & Program...")
-    //     await this.worker({operation: "compileContract", params: {}}, "compileContract_ret")
-    //
-    //     let txJson = await this.worker({operation: "proveContract", params: params}, "proveContract_ret")
-    //     let txAny = JSON.parse(txJson)
-    //
-    //     console.log("Tx received from worker")
-    //
-    //     if(txAny.success === false){
-    //         throw txAny.error
-    //     }else{
-    //         let query = this.sendZkAppQuery(txJson)
-    //         let ret = await this.sendGraphQL(this.graphqlEndpoint, query)
-    //
-    //         console.log(ret)
-    //         let hash = ret.data.sendZkapp.zkapp.hash
-    //         return {
-    //             txhash: hash
-    //         }
-    //     }
-    //
-    // }
-    //
-    // async rollup_old(proof: MultiSigProof, wallet: DeployedWalletState, account: PrivateKey, walletProvider: WalletProvider) : Promise<TxSendResults>{
-    //
-    //     let zkAppAddress = PublicKey.fromBase58(wallet.wallet.address)
-    //
-    //     let proposal = new Proposal(wallet.state!.proposal.receiver, Field.fromString(wallet.state!.proposal.amount.toString()))
-    //     let signerList = SignerList.constructFromSigners(wallet.wallet.signers.map(x => PublicKey.fromBase58(x)))
-    //     let state1 = new ProposalState(proposal, [Field.zero, Field.zero], signerList)
-    //
-    //     let votes = [0, 0]
-    //     wallet.state?.signatures.map(x => x.vote).forEach(a =>  votes[a ? 0 : 1]++)
-    //     let alreadySigned = wallet.state!.signatures.map(x => x.address)
-    //
-    //     let state2 = new ProposalState(proposal, votes.map(x => Field.fromNumber(x)), signerList.cloneWithout(...alreadySigned))
-    //
-    //     console.log(state1.hash().toString())
-    //     console.log(state2.hash().toString())
-    //
-    //     console.log(proof.publicInput.startProposalsHash.toString())
-    //     console.log(proof.publicInput.proposalsHash.toString())
-    //
-    //     console.log("Compiling Smartcontract & Program...")
-    //     tic()
-    //
-    //     MultiSigZkProgram.compile()
-    //     MultiSigZkApp.compile()
-    //
-    //     toc()
-    //
-    //     let tx = await Mina.transaction({feePayerKey: account, fee: 0.01 * 1e9}, () => {
-    //         let zkApp = new MultiSigZkApp(zkAppAddress);
-    //
-    //         zkApp.approveWithProof(proof, state2, state1)
-    //
-    //         // zkApp.sign(zkAppPrivateKey);
-    //     });
-    //     try {
-    //         await tx.prove()
-    //         tx.sign()
-    //
-    //         let json = tx.toJSON()
-    //         console.log(json)
-    //
-    //         let hash = await tx.send().hash()
-    //         // let res = await walletProvider.sendTransaction(json)
-    //
-    //         return { txhash: hash }
-    //     } catch (err) {
-    //         console.log(err)
-    //         throw err
-    //     }
-    //
-    // }
 
     async getWalletData(address: string, deploymentTx: string) : Promise<WalletAccountData | undefined>{
 
@@ -346,7 +231,7 @@ export class ZkAppService {
         } else {
 
             //Check deployment tx
-            let pending = await new GraphQlService().getPendingTransaction(deploymentTx)
+            let pending = await this.graphql.getPendingTransaction(deploymentTx)
             console.log("Pending: ", pending)
             return {
                 address: address,
@@ -378,13 +263,14 @@ export class ZkAppService {
         let contractpk = PrivateKey.fromBase58(contract.contractPk)
 
         let proveMethod = {
-            zkappKey: contractpk.toBase58()
+            proofWithSignature: contract.proofBySignature,
+            zkAppPk: contractpk.toBase58()
         }
-        await this.worker({operation: "init", proveMethod: proveMethod}, "init_ret")
+        await this.workerInstance.initProveMethod(proveMethod)
 
         console.log(contractpk.toBase58())
 
-        await this.worker({operation: "compileContract"}, "compileContract_ret")
+        await this.workerInstance.compile()
         this.programCompiled = true
 
         let pubKey = contractpk.toPublicKey()
@@ -395,9 +281,9 @@ export class ZkAppService {
 
         console.log("Creating transaction")
 
-        let auroDeployer = (await walletProvider.accounts())[0]
+        let auroDeployer = (await walletProvider.accounts())[0]?.toBase58()
 
-        let workerPayload = {
+        let workerPayload: ValeDeployArgs = {
             signerRoot: signerMap.getRoot().toString(),
             stateRoot: stateMap.getRoot().toString(),
             signersLength: contract.signers.length,
@@ -406,7 +292,7 @@ export class ZkAppService {
             auroDeployer
         }
 
-        let txObj = await this.worker({operation: "deployContract", payload: workerPayload}, "deployContract_ret")
+        let txHash = await this.workerInstance.deployContract(workerPayload)
 
         //TODO Aurowallet doesn´t sign the first accountupdate...
         // let txJson = txObj.tx
@@ -414,10 +300,17 @@ export class ZkAppService {
 
         // let tx = Types.ZkappCommand.fromJSON(txJson)
 
+        // let txJson = txHash
+        // let res = await this.sendGraphQL(Config.GRAPHQL_URL, this.sendZkAppQuery(txJson))
+
+        // console.log("REs")
+        // console.log(res)
+
         return {
-            txhash: txObj.txhash,
+            txhash: txHash,
             // txhash: hash2,
-            address: pubKey
+            address: pubKey,
+            wallet: contract.address
         }
     }
 

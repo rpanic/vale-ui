@@ -30,8 +30,6 @@ export default defineComponent({
 },
     methods: {
         formatMina(uint: bigint | string): number {
-            console.log(typeof uint)
-            console.log(uint)
             if(typeof uint === "string"){
                 uint = Field(uint).toBigInt()
             }
@@ -91,7 +89,15 @@ export default defineComponent({
                 <div class="card-body" v-if="wallet !== undefined">
 
                     <img :src="wallet.blockie()" class="circle" height="50"/>
-                    <h5 class="mt-2">{{wallet.name}}</h5>
+                    <h5 class="mt-2">
+                        {{wallet.name}}
+                    </h5>
+                    <div v-if="wallet.deploymentPending" class="text-warning d-flex font-normal">
+                        <div class="dot align-self-center me-2 bg-warning">
+                        </div>
+                        Deployment pending
+                    </div>
+
 
                     <p class="mt-2">{{wallet.address}} <a class="ms-1" :href="linkBaseAddress + wallet.address" target="_blank"><font-awesome-icon icon="fa-solid fa-external-link-alt"></font-awesome-icon></a></p>
 
