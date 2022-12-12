@@ -20,7 +20,9 @@ export default defineComponent({
 
             transactions: [] as VeryRichPendingTx[],
             storage: new StorageService(),
-            tx_explorer_base: Config.EXPLORER_BASE_TX
+            tx_explorer_base: Config.EXPLORER_BASE_TX,
+
+            listener_id: -1
         }
     },
     methods: {
@@ -53,7 +55,7 @@ export default defineComponent({
                     }
                 })
 
-                this.pendingtxs.onChange((t: string, added: boolean) => {
+                this.listener_id = this.pendingtxs.onChange((t: string, added: boolean) => {
                     if(!added){
                         let tx = this.transactions.find(x => x.hash === t)
                         if(tx){
@@ -76,7 +78,11 @@ export default defineComponent({
 
             })
         })
-
+    },
+    unmounted() {
+        if(this.listener_id >= 0){
+            this.pendingtxs.listeners.splice(this.listener_id, 1)
+        }
     }
 
 })

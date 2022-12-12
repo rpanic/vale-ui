@@ -260,6 +260,7 @@ export class DeployedWalletImpl extends DeployedWalletImplBase{
 
         let map = new MerkleMap()
 
+        this.getSignerStates().forEach(s => console.log(s.pubkey.toBase58() + " " + s.voted.toBoolean()))
         this.getSignerStates().forEach(s => map.set(s.pubkey.x, s.hash()))
 
         return map
@@ -294,11 +295,18 @@ export class DeployedWalletImpl extends DeployedWalletImplBase{
 
         let map = new MerkleMap()
 
+        console.log("r1" + map.getRoot().toString())
+
         let proposalState = this.getProposalState()
         if(proposalState){
-            map.set(proposalState.index, proposalState.hash())
+            // if(proposalState.votes.some(x => x.toBigInt() > 0n)){
+                map.set(proposalState.index, proposalState.hash())
+            // }
+            console.log(proposalState.index.toString() + ": ")
+            console.log(ProposalState.toJSON(proposalState))
         }
 
+        console.log("r2" + map.getRoot().toString())
         return map
 
     }

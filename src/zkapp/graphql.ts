@@ -42,7 +42,7 @@ export class GraphQlService{
 
     resturl = "https://berkeley-api.eu2.rpanic.com/rpc"
 
-    pendingTxs = inject<PendingTxService>("pendingtxservice")!
+    pendingTxs: PendingTxService
 
     constructor(pendingTxs: PendingTxService) {
         this.pendingTxs = pendingTxs
@@ -182,7 +182,6 @@ export class GraphQlService{
         arr.push(...minedtxs)
 
         arr = arr.sort((a, b) => {
-            console.log(a.txid)
             if(a.blocknumber === 0){
                 return 1
             }else if(a.blocknumber === 0){
@@ -236,6 +235,9 @@ export class GraphQlService{
             let aus = zkAppCommands[0].zkappCommand.accountUpdates
             let balancechange = aus.map(x => Number.parseInt(x.body.balanceChange.magnitude) * (x.body.balanceChange.sgn === "Positive" ? 1 : -1)).reduce((a, b) => a + b)
             let event = aus.map(x => x.body.events as any[]).filter(x => x.length > 0)[0]
+            if(event[0].length){ //if it is string[][]
+                event = event[0]
+            }
             let type = this.getTransactionTypeByEventData(
                 event, balancechange
             )

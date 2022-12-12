@@ -62,7 +62,6 @@ export class PendingTxService {
             pending[key] = txs
         }
 
-        console.log(pending)
         this.storage.savePendingTxs(pending)
 
     }
@@ -139,8 +138,8 @@ export class PendingTxService {
         }
     }
 
-    onChange(f: (string, boolean) => void){
-        this.listeners.push(f)
+    onChange(f: (string, boolean) => void) : number{
+        return this.listeners.push(f) - 1
     }
 
 }

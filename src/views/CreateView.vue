@@ -5,7 +5,7 @@ import ContinueButtonRow from '../components/ContinueButtonRow.vue'
 
 import { PrivateKey, PublicKey } from 'snarkyjs'
 import { defineComponent, inject, PropType } from 'vue';
-import { ZkAppService } from '@/zkapp/zkapp-service';
+import {TxSendResults, ZkAppService} from '@/zkapp/zkapp-service';
 import { StorageService, DeployedWallet } from '@/zkapp/storage-service';
 import GenericModal from '@/components/GenericModal.vue';
 import { SimpleObservable } from '@/zkapp/models';
@@ -231,6 +231,13 @@ export default defineComponent({
                                     Number of signers required to sign any transaction: 
                                     <div style="font-size: 16px;" class="pt-1">
                                         {{ select }} out of {{ pks.list.length }} signers
+                                    </div>
+                                </div>
+
+                                <div class="small mt-3">
+                                    Proof type:
+                                    <div style="font-size: 16px;" class="pt-1">
+                                        {{ authorizationSignature ? "Signature" : "ZK-Proof" }}
                                     </div>
                                 </div>
                             </div>
