@@ -281,13 +281,13 @@ export default defineComponent({
 
 .bg-grayed-image{
     /*background-image: url("src/assets/layered-waves-haikei.svg");*/
-    background-image: url("src/assets/wave-haikei-2.svg");
+    background-image: url("./assets/wave-haikei-2.svg");
     background-size: cover;
     background-position-y: bottom;
 }
 .bg-grayed-image-2{
     /*background-image: url("src/assets/layered-waves-haikei.svg");*/
-    background-image: url("src/assets/wave-haikei-3.svg") !important;
+    background-image: url("./assets/wave-haikei-3.svg") !important;
     background-size: cover;
     background-position-y: bottom;
 }

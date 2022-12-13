@@ -43,6 +43,8 @@ Altought everything is in web-workers, everything works using signatures as of n
 
 Off-chain storage hasn´t been implemented yet
 
+Website is not yet responsive
+
 ## Project Setup
 
 ```sh
