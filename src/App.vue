@@ -7,7 +7,7 @@ import { concatStringMiddle } from './zkapp/utils';
 import { AuroWalletProvider, WalletProvider } from './zkapp/walletprovider';
 import { ZkAppService } from './zkapp/zkapp-service';
 import {ViewModel} from "@/zkapp/viewmodel";
-import {Toast} from "bootstrap";
+import {Popover, Toast} from "bootstrap";
 import {PendingTxService} from "@/zkapp/pendingtx";
 
 export default defineComponent({
@@ -95,6 +95,12 @@ export default defineComponent({
 
     });
 
+  const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+  const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new Popover(popoverTriggerEl, {
+      placement: "top",
+      // template: '<div class="popover" role="popover"><div class="popover-arrow"></div><div class="popover-inner"></div></div>'
+  }))
+
     // let offset = 0
     // setInterval(function(){
     //   eval("$('.fa-spinner').css('transform', 'rotate(" + offset + "deg)')")
@@ -160,6 +166,7 @@ export default defineComponent({
     <div class="rowf content" :class="{'bg-grayed-image': route === '/', 'bg-grayed-image-2': route !== '/'}"> <!-- bg-grayed -->
       <router-view />
     </div>
+
 <!--    <div class="rowf footer justify-content-center" style="font-weight: 600; box-shadow: rgb(40 54 61 / 18%) 0px -2px 4px 0px;">-->
 <!--      <div class="d-flex justify-content-center" style="border-top: var(&#45;&#45;bs-card-border-width) solid rgb(0 14 28 / 15%)">-->
 <!--          <div class="align-self-center pt-1 mb-1">-->
@@ -168,10 +175,28 @@ export default defineComponent({
 <!--      </div>-->
 <!--    </div>-->
 
+      <div class="position-fixed bottom-0 start-50 translate-middle-x mb-2" :class="{'start-sidebar': route === '/wallets'}" style="background-color: rgba(0, 0, 0, 0%)">
+          <a class="text-light h3" href="https://github.com/rpanic/vale-ui" target="_blank" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="UI Repository">
+              <font-awesome-icon icon="fa-brands fa-github"></font-awesome-icon>
+          </a>
+          <a class="text-light h3 ms-3" href="https://github.com/rpanic/vale-contracts" target="_blank" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="Contract Repository">
+              <font-awesome-icon icon="fa-brands fa-github"></font-awesome-icon>
+          </a>
+      </div>
+
+
   </div>
 </template>
 
 <style>
+
+.popover-body{
+    padding: 0.5rem !important;
+}
+
+.start-sidebar {
+    left: 62.5% !important;
+}
 
 .loading {
   display: inline-block;

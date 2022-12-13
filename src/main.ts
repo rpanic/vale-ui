@@ -29,8 +29,9 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
+import {faGithub} from "@fortawesome/free-brands-svg-icons";
 
-library.add(faCheck, faChevronDown, faSpinner, faArrowUpRightFromSquare, faExternalLinkAlt, faWallet,faArrowRightToBracket,faArrowRightFromBracket,faChevronLeft,faXmark,faPlus,faChevronRight,faCirclePlus,faTrash, faXmark )
+library.add(faCheck, faChevronDown, faSpinner, faArrowUpRightFromSquare, faExternalLinkAlt, faWallet,faArrowRightToBracket,faArrowRightFromBracket,faChevronLeft,faXmark,faPlus,faChevronRight,faCirclePlus,faTrash, faXmark,faGithub )
 
 
 TimeAgo.addDefaultLocale(en)

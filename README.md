@@ -4,6 +4,8 @@
 
 See a hosted version on [wallet.rpanic.com](https://wallet.rpanic.com)
 
+[The zkapp-contract repository](https://github.com/rpanic/vale-contracts)
+
 Vale Multisig is a platform which lets you create you own multisig wallet very easily. 
 When you go on the site, you can create a new instance of the vale contract, where you can set the 
 signers you want to be able to sign and the amount of signers needed to pass a proposal.
@@ -29,11 +31,6 @@ The signatures can also be created in the UI and directly submitted to chain wit
 - Device-independent recreation of proposals and signer state using contract-events
 - Live feed of pending transactions
 - Decoding of transaction-purpose from events
-
-## Core concepts
-
-### Proposal
-
 
 
 ## Limitations
