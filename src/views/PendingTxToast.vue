@@ -90,7 +90,7 @@ export default defineComponent({
 
 <template>
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: #fff">
             <div class="toast-body m-1">
 
                 <div class="d-flex py-1" style="line-height: 120%">

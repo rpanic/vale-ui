@@ -142,11 +142,11 @@ export default defineComponent({
 
 <template>
 
-    <div class="row w-100 m-0 bg-grayed">
+    <div class="row w-100 m-0"> <!--  bg-grayed -->
 
         <div class="col-3 ps-0">
 
-            <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white overflow-auto sticky-top" style="height: 93.5vh; z-index: 0; box-shadow: rgb(40 54 61 / 18%) 0px 2px 4px 0px;">
+            <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white overflow-auto sticky-top" style="height: calc(100vh - 57px);; z-index: 0; box-shadow: rgb(40 54 61 / 18%) 0px 2px 4px 0px;">
 
                 <a class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
                     <!-- <svg class="bi pe-none me-2" width="30" height="24"><use xlink:href="#bootstrap"></use></svg> -->
@@ -201,7 +201,7 @@ export default defineComponent({
 <!--                    </button>-->
 <!--                </div>-->
 
-                <div class="d-flex align-self-center mt-auto mb-3">
+                <div class="d-flex align-self-center mt-auto mb-4">
                     <router-link class="btn btn-outline-success" to="/create">
                         <font-awesome-icon icon="fa-solid fa-circle-plus"></font-awesome-icon>
                         Create Wallet

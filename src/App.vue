@@ -21,6 +21,7 @@ export default defineComponent({
       wallet: undefined as WalletProvider | undefined,
       address: undefined as string | undefined,
       concatStringMiddle: concatStringMiddle,
+      route: "/"
     }
   },
 
@@ -68,8 +69,14 @@ export default defineComponent({
       })
     }
   },
-
+  watch: {
+    $route (to, from){
+      this.route = to.fullPath
+    }
+  },
   mounted() {
+
+      this.route = this.$route.fullPath
 
     isReady.then(() => {
 
@@ -150,7 +157,7 @@ export default defineComponent({
       </nav>
     </div>
 
-    <div class="rowf content bg-grayed">
+    <div class="rowf content" :class="{'bg-grayed-image': route === '/', 'bg-grayed-image-2': route !== '/'}"> <!-- bg-grayed -->
       <router-view />
     </div>
 <!--    <div class="rowf footer justify-content-center" style="font-weight: 600; box-shadow: rgb(40 54 61 / 18%) 0px -2px 4px 0px;">-->
@@ -245,6 +252,19 @@ export default defineComponent({
   color: #fff;
   animation: auro-trans 0.8s ease-in-out;
   background-position-x: -40px;
+}
+
+.bg-grayed-image{
+    /*background-image: url("src/assets/layered-waves-haikei.svg");*/
+    background-image: url("src/assets/wave-haikei-2.svg");
+    background-size: cover;
+    background-position-y: bottom;
+}
+.bg-grayed-image-2{
+    /*background-image: url("src/assets/layered-waves-haikei.svg");*/
+    background-image: url("src/assets/wave-haikei-3.svg") !important;
+    background-size: cover;
+    background-position-y: bottom;
 }
 
 </style>
