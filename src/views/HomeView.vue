@@ -14,8 +14,8 @@
         </div>
         <div class="col-8">
           <h2 class="mb-3">Welcome to Vale Multisig</h2>
-          <h5>Vale is a platform for creating secure and private multisig wallets.<br>
-            Here is how to get started:</h5>
+          <h5>Vale is a platform for creating secure and private multisig wallets.</h5>
+            <h5>Here is how to get started:</h5>
         </div>
         <div class="col-2">
         </div>

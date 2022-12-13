@@ -173,7 +173,10 @@ export default defineComponent({
                             </div>
 
 
-                            <small>{{wallet.k}} of {{wallet.signers.length}}</small>
+                            <small class="d-flex align-items-center">
+                                <font-awesome-icon icon="fa-solid fa-key" class="text-secondary small me-1" style="--bs-text-opacity: 0.70;"></font-awesome-icon>
+                                {{wallet.k}} of {{wallet.signers.length}}
+                            </small>
                         </div>
                         <div class="row">
                             <div class="col-10 mb-1 small" v-if="walletData[index] !== undefined">Balance: {{ formatMina(walletData[index].balance) }} MINA</div>

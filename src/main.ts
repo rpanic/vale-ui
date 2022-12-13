@@ -16,7 +16,7 @@ import * as bootstrap from 'bootstrap'
 /* import font awesome icon component */
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-import {faCheck, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faCheck, faKey, faTrash} from '@fortawesome/free-solid-svg-icons'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
@@ -31,7 +31,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import {faGithub} from "@fortawesome/free-brands-svg-icons";
 
-library.add(faCheck, faChevronDown, faSpinner, faArrowUpRightFromSquare, faExternalLinkAlt, faWallet,faArrowRightToBracket,faArrowRightFromBracket,faChevronLeft,faXmark,faPlus,faChevronRight,faCirclePlus,faTrash, faXmark,faGithub )
+library.add(faCheck, faChevronDown, faSpinner, faArrowUpRightFromSquare, faExternalLinkAlt, faWallet,faArrowRightToBracket,faArrowRightFromBracket,faChevronLeft,faXmark,faPlus,faChevronRight,faCirclePlus,faTrash, faXmark,faGithub, faKey )
 
 
 TimeAgo.addDefaultLocale(en)
