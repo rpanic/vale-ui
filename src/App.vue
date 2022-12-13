@@ -121,7 +121,7 @@ export default defineComponent({
     <div class="rowf header">
 
       <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom" style="font-weight: 600; box-shadow: rgb(40 54 61 / 18%) 0px 2px 4px 0px; z-index: 1">
-        <div class="container">
+        <div class="container" style="max-width: 95%">
 <!--          <img alt="Vue logo" class="logo me-2" src="@/assets/logo.svg" height="25"/>-->
           <router-link class="navbar-brand" to="/">Vale Multisig</router-link>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
