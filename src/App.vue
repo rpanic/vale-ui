@@ -9,6 +9,7 @@ import { ZkAppService } from './zkapp/zkapp-service';
 import {ViewModel} from "@/zkapp/viewmodel";
 import {Popover, Toast} from "bootstrap";
 import {PendingTxService} from "@/zkapp/pendingtx";
+import PendingTxToast from "@/views/PendingTxToast.vue";
 
 export default defineComponent({
 
@@ -110,7 +111,7 @@ export default defineComponent({
     //   }
     // }, 10, 0)
 
-  }
+  }, components: { PendingTxToast }
 
 })
 
@@ -165,6 +166,8 @@ export default defineComponent({
 
     <div class="rowf content" :class="{'bg-grayed-image': route === '/', 'bg-grayed-image-2': route !== '/'}"> <!-- bg-grayed -->
       <router-view />
+
+      <PendingTxToast></PendingTxToast>
     </div>
 
 <!--    <div class="rowf footer justify-content-center" style="font-weight: 600; box-shadow: rgb(40 54 61 / 18%) 0px -2px 4px 0px;">-->

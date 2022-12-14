@@ -168,7 +168,9 @@ const functions = {
 
             c.doApproveSignature(PublicKey.fromBase58(args.signer), signature, vote, proposalState, proposalWitness, signerWitness)
 
-            c.requireSignature()
+            if(!proveMethod.verificationKey){
+                c.requireSignature()
+            }
         })
         if(proveMethod.verificationKey){
             tic("Proving rollup transaction...")

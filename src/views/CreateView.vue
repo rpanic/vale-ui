@@ -36,7 +36,7 @@ export default defineComponent({
             storageService: new StorageService(),
             txSendObservable: new SimpleObservable<TxSendParams>(),
             walletProvider: inject<WalletProvider>("wallet"),
-            viewModel: inject<ViewModel>("view")
+            viewModel: inject<ViewModel>("view"),
         }
     },
 

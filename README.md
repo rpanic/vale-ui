@@ -37,11 +37,12 @@ The signatures can also be created in the UI and directly submitted to chain wit
 
 AuroWallet is only used for sending transactions, not for deploying the contract and signing. Signing is only possible with website-stored privatekeys at the moment
 
-Account creation fee cannot be paid by the contract at the moment due to a bug in snarkyjs 
+Account creation fee for payouts cannot be paid by the contract at the moment due to a bug in snarkyjs 
 
 Altought everything is in web-workers, everything works using signatures as of now
 
-Off-chain storage hasn´t been implemented yet
+Off-chain storage hasn´t been implemented fully yet. 
+Everything works except retrieval of the signers (which can´t be stored in events since its dynamically-sized) 
 
 Website is not yet responsive
 

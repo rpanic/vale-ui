@@ -63,7 +63,7 @@ export default defineComponent({
             }
         },
         reloadPendingTxs(next: DeployedWalletImpl) {
-            let pendingtxs = this.pendingTxService.getPendingTxs()[next.address]
+            let pendingtxs = this.pendingTxService.getPendingTxs()[next.address] ?? []
             let txs: Promise<RichPendingTx>[] = []
             for(let txhash of pendingtxs){
                 txs.push(this.pendingTxService.getRichTx(this.graphql, txhash))

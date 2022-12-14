@@ -16,7 +16,7 @@ export default defineComponent({
         return {
             pendingtxs: inject<PendingTxService>("pendingtxservice")!,
             graphql: inject<GraphQlService>("graphql")!,
-            txPendingDropdownFlipped: true,
+            txPendingDropdownFlipped: false,
 
             transactions: [] as VeryRichPendingTx[],
             storage: new StorageService(),
@@ -110,7 +110,7 @@ export default defineComponent({
                     </a>
                 </div>
 
-                <div class="collapse" id="tx-collapse">
+                <div class="collapse show" id="tx-collapse">
                     <hr class="mb-2 mt-3 pb-1">
                     <!-- Row -->
                     <div class="d-flex justify-content-between" v-for="(transaction, index) in transactions">

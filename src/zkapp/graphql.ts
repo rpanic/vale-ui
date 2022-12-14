@@ -78,11 +78,16 @@ export class GraphQlService{
 
                     for(let height of heights){
                         let can = await axios.post<GetCanonicalBlockResponse>(this.resturl + "/getcanonicalblock", {height_input: height}, {headers}) as AxiosResponse<GetCanonicalBlockResponse>
-                        heightToCanonical[height + ""] = can.data[0].state_hash
+                        if(can.data[0]){
+                            heightToCanonical[height + ""] = can.data[0].state_hash
+                        }else{
+                            heightToCanonical[height + ""] = "none"
+                        }
                     }
 
                     let canonicalTx = grouped[chash]
                         .filter(x => x.block_hash === heightToCanonical[x.height + ""])[0]
+                        ?? grouped[chash][0] //In case blocks cannot be retrieved
 
                     blocktxs = blocktxs.filter(x => x.command_hash === chash ? x.block_hash === canonicalTx.block_hash : true)
 

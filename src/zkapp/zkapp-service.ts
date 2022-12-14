@@ -167,6 +167,8 @@ export class ZkAppService {
             zkAppPk: wallet.contractPk
         })
 
+        await this.workerInstance.compile()
+
         let serializeWitness = (w: MerkleMapWitness) => {
             return {
                 isLefts: w.isLefts.map(x => x.toBoolean()),

@@ -290,8 +290,6 @@ export default defineComponent({
 
     </TransactionSendingComponent>
 
-    <PendingTxToast></PendingTxToast>
-
 </template>
 
 <style>
