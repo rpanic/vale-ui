@@ -37,15 +37,35 @@ export type ValeDeployArgs = {
     auroDeployer: string
 }
 
-export type RollupArgs = { proposalState: any; receiver: string; signature: any; proposalWitness: any; walletAddress: any; vote: boolean; signerWitness: any; signer: string }
+export type RollupArgs = {
+    proposalState: any;
+    receiver: string;
+    signature: any;
+    proposalWitness: any;
+    walletAddress: any;
+    vote: boolean;
+    signerWitness: any;
+    signer: string;
+    lazySetupArgs: LazySetupArgs | undefined;
+}
+
+export type LazySetupArgs = {
+    signerRoot: string,
+    proposalRoot: string,
+    k: number,
+    signersLength: number,
+}
 
 function getProveMethod() : ProveMethod{
-    console.log("Prove Method: " + state.proofWithSignature ? "Signature" : "Proof")
-    return state.proofWithSignature ? {
+    console.log("Prove Method: " + (state.proofWithSignature ? "Signature" : "Proof"))
+    let proveMethod = state.proofWithSignature ? {
         zkappKey: PrivateKey.fromBase58(state.zkAppPk!)
     } : {
-        verificationKey: state.vk
+        verificationKey: state.vk,
+        zkappKey: PrivateKey.fromBase58(state.zkAppPk!)
     }
+    console.log(proveMethod)
+    return proveMethod
 }
 
 const functions = {
@@ -86,10 +106,11 @@ const functions = {
     deployContract: async (args: ValeDeployArgs) => {
 
         let contractPk = PrivateKey.fromBase58(state.zkAppPk!)
+        let contractAddress = contractPk.toPublicKey()
 
         let proveMethod: ProveMethod = getProveMethod()
 
-        let zkAppInstance = new MultiSigContract(contractPk.toPublicKey())
+        let zkAppInstance = new MultiSigContract(contractAddress)
         let signerRoot = Field(args.signerRoot)
         let stateRoot = Field(args.stateRoot)
         let signersLength = Field(args.signersLength)
@@ -97,7 +118,9 @@ const functions = {
 
         let account = PrivateKey.fromBase58(args.deployer)
 
-        console.log("zkapp: " + contractPk.toPublicKey().toBase58())
+        await fetchAccount({ publicKey: account.toPublicKey() })
+
+        console.log("zkapp: " + contractAddress.toBase58())
         console.log("deployer: " + account.toPublicKey().toBase58())
 
         let tx = await Mina.transaction({ feePayerKey: account, fee: 0.01 * 1e9 },() => { // { feePayerKey: account, fee: 0.01 * 1e9 },
@@ -109,12 +132,16 @@ const functions = {
             // au.
 
             zkAppInstance.deploy(proveMethod);
-            zkAppInstance.setup(signerRoot, stateRoot, signersLength, k);
+
+            if(!proveMethod.verificationKey){ //Setup will be called in rollup for proof-based contracts
+                zkAppInstance.setup(signerRoot, stateRoot, signersLength, k);
+            }
 
             console.log("Init with k = ", k);
 
-            if(proveMethod.zkappKey){
-                zkAppInstance.requireSignature()
+            if(proveMethod.zkappKey && !proveMethod.verificationKey){
+                console.log("require sig")
+                zkAppInstance.requireSignature();
             }
         });
         if(proveMethod.verificationKey){
@@ -122,6 +149,7 @@ const functions = {
             await tx.prove()
             toc()
         }
+        // let keys = proveMethod.zkappKey ? [proveMethod.zkappKey] : [contractPk]
         tx.sign(proveMethod.zkappKey ? [proveMethod.zkappKey] : [])
 
         let txId = await tx.send()
@@ -134,7 +162,7 @@ const functions = {
     rollup: async (args: RollupArgs) => {
 
         await fetchAccount({ publicKey: PublicKey.fromBase58(args.receiver) })
-        await fetchAccount({ publicKey: PublicKey.fromBase58(args.walletAddress) })
+        let walletacc = await fetchAccount({ publicKey: PublicKey.fromBase58(args.walletAddress) })
 
         let signature = Signature.fromJSON(args.signature)
         let vote = new Bool(args.vote)
@@ -162,9 +190,28 @@ const functions = {
 
         let proveMethod = getProveMethod()
 
+        let needsLazySetup = walletacc.account!.appState![0].toString() === "0"
+        let parsedLazyArgs = needsLazySetup ? {
+            k: Field(args.lazySetupArgs!.k),
+            signersLength: Field(args.lazySetupArgs!.signersLength),
+            signerRoot: Field(args.lazySetupArgs!.signerRoot),
+            proposalRoot: Field(args.lazySetupArgs!.proposalRoot)
+        } : {}
+
+        console.log(args.lazySetupArgs)
+
         let tx = await Mina.transaction(() => {
 
             let c = new MultiSigContract(PublicKey.fromBase58(args.walletAddress))
+
+            if(needsLazySetup){
+                console.log("Doing setup")
+                c.setup(parsedLazyArgs.signerRoot!, parsedLazyArgs.proposalRoot!, parsedLazyArgs.signersLength!, parsedLazyArgs.k!)
+
+                // zkAppInstance.setPermissions({
+                //
+                // })
+            }
 
             c.doApproveSignature(PublicKey.fromBase58(args.signer), signature, vote, proposalState, proposalWitness, signerWitness)
 

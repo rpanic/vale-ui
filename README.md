@@ -6,7 +6,7 @@ See a hosted version on [wallet.rpanic.com](https://wallet.rpanic.com)
 
 [The zkapp-contract repository](https://github.com/rpanic/vale-contracts)
 
-Vale Multisig is a platform which lets you create you own multisig wallet very easily. 
+Vale Multisig is a platform that lets you create you own multisig wallet very easily. 
 When you go on the site, you can create a new instance of the vale contract, where you can set the 
 signers you want to be able to sign and the amount of signers needed to pass a proposal.
 
@@ -31,7 +31,7 @@ The signatures can also be created in the UI and directly submitted to chain wit
 - Device-independent recreation of proposals and signer state using contract-events
 - Live feed of pending transactions
 - Decoding of transaction-purpose from events
-
+- Proof generation in web-workers outside the main thread
 
 ## Limitations
 
@@ -39,12 +39,12 @@ AuroWallet is only used for sending transactions, not for deploying the contract
 
 Account creation fee for payouts cannot be paid by the contract at the moment due to a bug in snarkyjs 
 
-Altought everything is in web-workers, everything works using signatures as of now
+Initialization of proof-based contract instances does not work due to a bug in snarkyjs, a [issue exists](https://github.com/MinaProtocol/mina/issues/12109)
 
 Off-chain storage hasn´t been implemented fully yet. 
 Everything works except retrieval of the signers (which can´t be stored in events since its dynamically-sized) 
 
-Website is not yet responsive
+Website is not yet optimized for mobile
 
 ## Project Setup
 

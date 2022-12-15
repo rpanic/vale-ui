@@ -18,7 +18,7 @@ import { ProposalState} from "vale-core/build/src/multisigv2";
 import {DeployedWalletImpl} from "@/zkapp/viewmodel";
 import {Networkprovider} from "@/zkapp/networkprovider";
 import {WorkerClient} from "@/zkapp/workerclient";
-import {RollupArgs, ValeDeployArgs} from "@/zkapp/worker2";
+import {LazySetupArgs, RollupArgs, ValeDeployArgs} from "@/zkapp/worker2";
 import {Config} from "@/zkapp/config";
 
 export interface TxSendResults {
@@ -176,6 +176,15 @@ export class ZkAppService {
             }
         }
 
+        let setupMaps = wallet.getSetupMerkleMaps()!
+
+        let lazySetupArgs: LazySetupArgs = {
+            k: wallet.k,
+            signersLength: wallet.signers.length,
+            proposalRoot: setupMaps.state.getRoot().toString(),
+            signerRoot: setupMaps.signers.getRoot().toString(),
+        }
+
         let rollupArgs: RollupArgs = {
             signer: op.signer.toBase58(),
             proposalState: ProposalState.toJSON(op.proposalState),
@@ -185,6 +194,7 @@ export class ZkAppService {
             signature: Signature.toJSON(op.signature),
             walletAddress: wallet.address,
             receiver: wallet.proposal!.receiver,
+            lazySetupArgs: lazySetupArgs
         }
 
         console.log(rollupArgs)

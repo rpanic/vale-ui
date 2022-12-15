@@ -121,16 +121,25 @@ export class GraphQlService{
     }
 
     getTransactionTypeByEventData(data: string[], balancechange: number) : string{
+        if(data[0].length){
+            data = data[0] as any as string[]
+        }
         switch (data[0]){
-            case "0": //init
+            case "0":
                 return "DEPLOYMENT"
-            case "1":
+            case "1": //init
+                return "DEPLOYMENT"
+            case "2":
                 if(Math.abs(balancechange) > 0){
                     return "TRANSFER"
                 }else{
                     return "SIGNATURE"
                 }
         }
+        if(!data[0]){
+            console.log("Tx event data[0] is undefined")
+        }
+        console.log(data[0])
         return "Other"
     }
 
@@ -239,10 +248,15 @@ export class GraphQlService{
 
             let aus = zkAppCommands[0].zkappCommand.accountUpdates
             let balancechange = aus.map(x => Number.parseInt(x.body.balanceChange.magnitude) * (x.body.balanceChange.sgn === "Positive" ? 1 : -1)).reduce((a, b) => a + b)
-            let event = aus.map(x => x.body.events as any[]).filter(x => x.length > 0)[0]
-            if(event[0].length){ //if it is string[][]
-                event = event[0]
-            }
+            let events = aus.map(x => x.body.events as any[]).filter(x => x.length > 0)
+            let event = events[events.length - 1]
+            // if(event && event[0].length){ //if it is string[][]
+            //     event = event[0]
+            // }
+            // if(!event){
+            //     console.log("Event null:")
+                console.log(aus)
+            // }
             let type = this.getTransactionTypeByEventData(
                 event, balancechange
             )

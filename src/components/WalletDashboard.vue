@@ -58,6 +58,11 @@ export default defineComponent({
             return true
         }
     },
+    watch: {
+        wallet(n, old){
+            (window as any).wallet = n
+        }
+    },
     mounted() {
         this.api!.getMinaPriceUsd().then(x => this.price = x)
     },
@@ -98,8 +103,18 @@ export default defineComponent({
                         Deployment pending
                     </div>
 
-
                     <p class="mt-2">{{wallet.address}} <a class="ms-1" :href="linkBaseAddress + wallet.address" target="_blank"><font-awesome-icon icon="fa-solid fa-external-link-alt"></font-awesome-icon></a></p>
+
+<!--                    <div>-->
+<!--                        <div class="collapse pt-2" id="signerCollapse">-->
+<!--                            <hr style=""> &lt;!&ndash; margin-left: -2rem; margin-right: -2rem; &ndash;&gt;-->
+<!--                            Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    <a class="" data-bs-toggle="collapse" href="#signerCollapse" role="button" aria-expanded="false" aria-controls="signerCollapse">-->
+<!--                        <font-awesome-icon icon="fa-solid fa-chevron-down"></font-awesome-icon>-->
+<!--                    </a>-->
 
                 </div>
             </div>

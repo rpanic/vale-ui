@@ -69,7 +69,7 @@ export class ViewModel {
             let votes = [0, 0] as [number, number]
 
             events[i].forEach(e => {
-                if(e.fields[0] === "1"){
+                if(e.fields[0] === "2"){
 
                     let event = VotedEvent.fromFields(e.fields.slice(1).map(x => Field(x)))
 
@@ -246,9 +246,12 @@ export class DeployedWalletImpl extends DeployedWalletImplBase{
         this.saving_accountNew = data.accountNew
     }
 
-    getSignerStates() : SignerState[]{
+    getSignerStates(overrideVoted: boolean = false) : SignerState[]{
         return this.signers.map(x => {
             let voted = this.alreadySigned.find(y => y.signer === x) != undefined
+            if(overrideVoted){
+                voted = false
+            }
             return new SignerState({
                 voted: Bool(voted),
                 pubkey: PublicKey.fromBase58(x)
@@ -264,6 +267,26 @@ export class DeployedWalletImpl extends DeployedWalletImplBase{
         this.getSignerStates().forEach(s => map.set(s.pubkey.x, s.hash()))
 
         return map
+
+    }
+
+    getSetupMerkleMaps() : { signers: MerkleMap, state: MerkleMap } | undefined {
+
+        let signersmap = new MerkleMap()
+
+        this.getSignerStates(true).forEach(s => console.log(s.pubkey.toBase58() + " " + s.voted.toBoolean()))
+        this.getSignerStates(true).forEach(s => signersmap.set(s.pubkey.x, s.hash()))
+
+        let proposal = this.getProposal()
+
+        if(proposal === undefined){
+            return undefined
+        }
+
+        console.log(JSON.stringify(proposal))
+        let statemap = new MerkleMap()
+
+        return { signers: signersmap, state: statemap}
 
     }
 
