@@ -110,6 +110,8 @@ export class GraphQlService{
                 })
             txs.push(...eventtxs)
 
+            txs = txs.filter((x, i) => txs.findIndex(y => y.command_hash === x.command_hash) <= i)
+
             txs = txs.sort((a, b) => a.height == b.height ? 0 : (a.height > b.height ? 1 : -1))
 
             return txs

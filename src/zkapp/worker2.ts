@@ -130,12 +130,10 @@ const functions = {
             // let au = AccountUpdate.create(account.toPublicKey())
             // au.balance.subInPlace(Mina.accountCreationFee())
             // au.
+            zkAppInstance.setup(signerRoot, stateRoot, signersLength, k);
+            zkAppInstance.requireSignature()
 
             zkAppInstance.deploy(proveMethod);
-
-            if(!proveMethod.verificationKey){ //Setup will be called in rollup for proof-based contracts
-                zkAppInstance.setup(signerRoot, stateRoot, signersLength, k);
-            }
 
             console.log("Init with k = ", k);
 

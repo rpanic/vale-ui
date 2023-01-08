@@ -39,7 +39,7 @@ AuroWallet is only used for sending transactions, not for deploying the contract
 
 Account creation fee for payouts cannot be paid by the contract at the moment due to a bug in snarkyjs 
 
-Initialization of proof-based contract instances does not work due to a bug in snarkyjs, a [issue exists](https://github.com/MinaProtocol/mina/issues/12109)
+**[Fixed]** Initialization of proof-based contract instances does not work due to a bug in snarkyjs, a [issue exists](https://github.com/MinaProtocol/mina/issues/12109)
 
 Off-chain storage hasn´t been implemented fully yet. 
 Everything works except retrieval of the signers (which can´t be stored in events since its dynamically-sized) 
